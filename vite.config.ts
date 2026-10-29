@@ -13,7 +13,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'logo.svg', 'apple-touch-icon-180x180.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: 'Covenant Culture 40 Days',
         short_name: '40 Days',
@@ -33,8 +33,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // App shell only: built code, styles, fonts and icons. Day content and media are not precached.
-        globPatterns: ['**/*.{js,css,html,woff2}', 'favicon.ico', 'logo.svg'],
+        // App shell only: built code, styles, fonts, the logo and icons. Day content and media are not
+        // precached (they come from Supabase Storage, not the build).
+        globPatterns: ['**/*.{js,css,html,woff2,webp}', 'favicon.ico'],
         navigateFallback: '/index.html',
         cleanupOutdatedCaches: true,
       },

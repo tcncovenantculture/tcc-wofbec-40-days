@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { LogoStrip } from '@/components/brand/logo-strip'
+import { Logo } from '@/components/brand/logo'
 import { Button } from '@/components/ui/button'
 
 // Phase 0 placeholder. Phase 3 replaces this with the full landing screen.
@@ -10,11 +10,8 @@ export default function LandingRoute() {
   return (
     <main className="flex flex-1 flex-col justify-between gap-10 py-4">
       <header className="space-y-5">
-        <LogoStrip className="w-24" />
-        <p className="font-heading text-lg font-semibold tracking-[0.18em] text-orange-ink uppercase">
-          Covenant Culture
-        </p>
-        <h1 className="text-7xl leading-none">40 Days</h1>
+        <Logo className="w-52" />
+        <h1 className="pt-2 text-7xl leading-none">40 Days</h1>
         <p className="text-lg text-ink-soft">
           Forty days of daily discipleship with a small pod, leading into WOFBEC 2027.
         </p>

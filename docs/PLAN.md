@@ -64,8 +64,9 @@ Build notes (Oct 29):
   pinned to 7 (8 is out).
 - shadcn's `form` component is now an empty stub; its replacement `field` is installed instead, and works
   with react-hook-form.
-- Icons are generated from a placeholder `public/logo.svg` (the five-colour strip). Swap in the real logo
-  and run `pnpm icons`.
+- The logo and icons are cut from the 1080px Covenant Culture graphic (`docs/brand/`) by
+  `scripts/extract-logo.ts`. Use `<Logo />` (full) or `<Logo variant="mark" />` in screens. When the
+  original logo file arrives, regenerate `public/icon-source.png` and run `pnpm icons`.
 - `supabase start` skips the logging and image-resizing services (`-x logflare,vector,imgproxy,supavisor`).
 
 ### Theme tokens (Claude Code)
@@ -535,4 +536,5 @@ real file has all eight days and the loader rejects anything less. Notes for who
       "WhatsApp number or email"; codes over WhatsApp or SMS would cost per message)
 - [ ] Wording of the three baseline questions (needed by Nov 5)
 - [ ] Data retention period after the programme
-- [ ] Logo files (SVG) for icons and the logo strip
+- [ ] Logo files (SVG) for icons and the logo strip. A 1080px graphic arrived Oct 29 and is in use; the
+      original SVG (or a PNG at least 1024px wide) would make the large install icons sharper.
