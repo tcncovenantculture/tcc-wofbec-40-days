@@ -1,0 +1,59 @@
+{
+  "module_number": 1,
+  "module_title": "Module title from the curriculum",
+  "days": [
+    {
+      "day_number": 1,
+      "kind": "intro",
+      "title": "Day title",
+      "introduction": "Two or three sentences that set up the day.",
+      "scripture_ref": "Acts 1:3",
+      "scripture_text": "Full text of the passage, with the translation named in the reference if needed.",
+      "scripture_url": null,
+      "body_md": "The day's teaching in Markdown.\n\nParagraphs, **bold**, *italics*, lists and [links](https://example.com) only.",
+      "media": [
+        {
+          "type": "image",
+          "url": "media/module-1/day-1.webp",
+          "alt": "Describe the image for someone who can't see it.",
+          "ai_generated": false
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=VIDEO_ID",
+          "caption": "Short title for the video",
+          "transcript": "Full transcript. Required for every video.",
+          "ai_generated": false
+        }
+      ],
+      "reflection_prompts": [
+        "First reflection question.",
+        "Optional second question."
+      ],
+      "practical_action": "One concrete thing to do today.",
+      "action_dimension": "character",
+      "pod_prompt": "A question for the pod to discuss today.",
+      "est_minutes": 12,
+      "status": "draft"
+    },
+    {
+      "day_number": 8,
+      "kind": "synthesis",
+      "title": "Rest and look back",
+      "introduction": "Day 8 is rest, synthesis and pod alignment, not a lesson.",
+      "scripture_ref": "Reference",
+      "scripture_text": "Short passage.",
+      "scripture_url": null,
+      "body_md": "A short reflection that draws the module together.",
+      "media": [],
+      "reflection_prompts": [
+        "What stood out to you this module?"
+      ],
+      "practical_action": "One thing to carry into the next module.",
+      "action_dimension": "community",
+      "pod_prompt": "Where does the pod want to grow together next?",
+      "est_minutes": 10,
+      "status": "draft"
+    }
+  ]
+}
