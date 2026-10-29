@@ -40,6 +40,8 @@ export default defineConfig({
       },
     }),
   ],
+  // Own port, so it never clashes with other local projects on Vite's default 5173
+  server: { port: 5271, strictPort: true },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
