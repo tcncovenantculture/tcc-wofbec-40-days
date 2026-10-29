@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Covenant Culture 40 Days">
+  <!-- Placeholder mark until the logo SVG arrives: the five-colour logo strip. -->
+  <rect width="512" height="512" fill="#FBF5EE"/>
+  <rect x="106" y="196" width="44" height="120" rx="22" fill="#892B89"/>
+  <rect x="170" y="171" width="44" height="170" rx="22" fill="#106635"/>
+  <rect x="234" y="156" width="44" height="200" rx="22" fill="#F6CA35"/>
+  <rect x="298" y="171" width="44" height="170" rx="22" fill="#F0942F"/>
+  <rect x="362" y="196" width="44" height="120" rx="22" fill="#EF545C"/>
+</svg>
