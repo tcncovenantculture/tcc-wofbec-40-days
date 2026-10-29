@@ -32,11 +32,12 @@ Goal: an empty but real app, themed and deployed, with local Supabase running.
 
 ### Accounts (Seyi, by hand)
 
-- [ ] GitHub repo `covenant-40-day`
+- [x] GitHub repo `covenant-40-day` (created as `tcncovenantculture/tcc-wofbec-40-days`, private)
 - [ ] Supabase: `c40-staging` (free, used for previews and the leaders' test) and `c40-prod` (paid plan, so
       it never pauses). Pick the closest region on offer. There's no African region, so data sits abroad;
       note this for the privacy task in Phase 3.
-- [ ] Vercel project linked to the repo: previews use staging, production uses prod
+- [ ] Vercel project linked to the repo: previews use staging, production uses prod. Live on Hobby at
+      https://tcc-wofbec-40-days.vercel.app; Production points at staging until `c40-prod` exists.
 - [ ] Resend account. Verify a sending domain (DNS) today, because verification can take time.
 - [ ] Domain or subdomain for the app, which the Nov 8 QR code points at
 
@@ -55,8 +56,8 @@ Goal: an empty but real app, themed and deployed, with local Supabase running.
       icons from the logo), `registerType: 'autoUpdate'`, precache the app shell only
 - [x] Vitest and Playwright configured, one passing placeholder test each
 - [x] GitHub Action: typecheck, lint, test on every push
-- [ ] Vercel SPA rewrite; first deploy. The rewrite is in `vercel.json`; the deploy waits on the GitHub
-      repo and Vercel project above.
+- [x] Vercel SPA rewrite; first deploy. The rewrite and cache headers are in `vercel.json`; first deploy
+      Oct 29, smoke test and offline loading pass against the live URL.
 
 Build notes (Oct 29):
 
@@ -68,6 +69,8 @@ Build notes (Oct 29):
   `scripts/extract-logo.ts`. Use `<Logo />` (full) or `<Logo variant="mark" />` in screens. When the
   original logo file arrives, regenerate `public/icon-source.png` and run `pnpm icons`.
 - `supabase start` skips the logging and image-resizing services (`-x logflare,vector,imgproxy,supavisor`).
+- Vercel's Hobby plan doesn't support private repos owned by a GitHub organisation. If automatic deploys
+  get blocked, deploy by hand from the Vercel dashboard (the agreed fallback); don't add a CI workaround.
 
 ### Theme tokens (Claude Code)
 

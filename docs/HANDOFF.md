@@ -8,8 +8,9 @@ Delete or update this file once it's out of date.
 
 ## Where things stand
 
-- **Phase 0 is done except the first deploy.** Everything is committed on `main`, **local only: no git
-  remote yet.**
+- **Phase 0 is done.** `main` is pushed to GitHub, CI is green, and the app is live at
+  https://tcc-wofbec-40-days.vercel.app (smoke test, SPA rewrite, cache headers and offline loading checked
+  against it on Oct 29). Still open: the user's phone check of the install prompt, and Resend (below).
 - Typecheck, lint, 27 Vitest tests and 1 Playwright test pass. `pnpm build` works; initial JS is
   115.5 KB gzipped (the Supabase client isn't imported anywhere yet, so it isn't counted).
 - Local Supabase is running in Docker (`pnpm exec supabase start -x logflare,vector,imgproxy,supavisor`).
@@ -21,15 +22,18 @@ Delete or update this file once it's out of date.
 
 | Account | State |
 | --- | --- |
-| GitHub | **Repo not created yet** (or not at `SeyiAk/covenant-40-day`). Ask the user for the URL. |
+| GitHub | `tcncovenantculture/tcc-wofbec-40-days`, **private, owned by an organisation**. Remote `origin` over HTTPS. |
 | Supabase staging | Created as **`tccwofbec-40-staging`** (not `c40-staging` as the plan says), region London `eu-west-2`, free org. CLI is logged in (`pnpm exec supabase login` done) but **not linked**. |
 | `.env.staging` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_PASSWORD` filled; `RESEND_API_KEY` empty. Gitignored. The project ref is the subdomain in `SUPABASE_URL`. |
-| Vercel | Not set up. |
-| Resend | Not set up. Unknown: the sending domain, who manages the church's DNS, the sender address. |
+| Vercel | **Hobby**, project `tcc-wofbec-40-days`. Production and Preview env vars point at staging (switch Production to prod before Nov 8). Hobby doesn't support private organisation repos: if automatic deploys get blocked, the user deploys by hand from the dashboard (their call; don't add a CI deploy workaround). |
+| Resend | Not set up. Use a domain the church already owns. Unknown: the domain name, who manages its DNS, the sender address. |
 | Supabase prod | Later (by Nov 4, Phase 3): a **separate org on the Pro plan** so staging stays free (Supabase bills per org). Project `c40-prod`, same region. |
 | Resend Pro | Before Nov 8 sign-ups. The free plan allows about 100 emails a day; check current limits. |
 
-## Next task: finish Phase 0 by deploying to Vercel
+## Next task: Resend and DNS (user), then Phase 1
+
+Steps 1 to 5 below were done on Oct 29 and are kept for reference. Step 6 (Resend and the app's custom
+domain) is with the user and the church's DNS owner.
 
 1. **Push to GitHub.** Ask the user for the repo URL (private, created empty). Then
    `git remote add origin <url> && git push -u origin main`. Git uses HTTPS with credentials in the macOS
@@ -176,8 +180,7 @@ Follow `docs/PLAN.md` 1.1 to 1.8. Decisions already made:
 
 ## Open questions for the user
 
-- GitHub repo URL; the staging publishable key (for Vercel); the Vercel URL once deployed
-- Resend sending domain, who manages DNS, and the sender address for sign-in codes
+- The church domain to use, who manages its DNS, and the sender address for sign-in codes
 - Original logo file (SVG or 1024px+ PNG)
 - From the plan: moderator names (by Nov 7), whether reports also go to moderators, baseline question
   wording (by Nov 5), data retention period
