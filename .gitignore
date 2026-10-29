@@ -1,0 +1,42 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Dependencies and build output
+node_modules
+dist
+dist-ssr
+dev-dist
+coverage
+
+# Env files: keys never get committed
+.env
+.env.*
+!.env.example
+*.local
+
+# Tests
+playwright-report
+test-results
+blob-report
+playwright/.cache
+
+# Supabase local state
+supabase/.temp
+supabase/.branches
+
+# Vercel
+.vercel
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

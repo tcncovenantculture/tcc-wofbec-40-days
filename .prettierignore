@@ -1,0 +1,14 @@
+dist
+dev-dist
+coverage
+playwright-report
+test-results
+pnpm-lock.yaml
+supabase/.temp
+supabase/.branches
+# shadcn/ui output keeps its own formatting so `shadcn add --overwrite` diffs stay readable
+src/components/ui
+# Docs and content are written by hand
+docs
+content
+CLAUDE.md
