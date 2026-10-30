@@ -23,6 +23,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      baseline_responses: {
+        Row: {
+          career: number | null
+          character: number | null
+          community: number | null
+          created_at: string
+          note: string | null
+          phase: Database['public']['Enums']['baseline_phase']
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          career?: number | null
+          character?: number | null
+          community?: number | null
+          created_at?: string
+          note?: string | null
+          phase: Database['public']['Enums']['baseline_phase']
+          user_id?: string
+        }
+        Update: {
+          career?: number | null
+          character?: number | null
+          community?: number | null
+          created_at?: string
+          note?: string | null
+          phase?: Database['public']['Enums']['baseline_phase']
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'baseline_responses_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       days: {
         Row: {
           action_dimension: Database['public']['Enums']['dimension']
@@ -543,6 +582,7 @@ export type Database = {
       set_whatsapp_link: { Args: { link: string }; Returns: undefined }
     }
     Enums: {
+      baseline_phase: 'start' | 'end'
       day_kind: 'intro' | 'developmental' | 'synthesis'
       dimension: 'career' | 'character' | 'community'
       message_kind: 'message' | 'shared_reflection' | 'pinned' | 'announcement'
@@ -663,6 +703,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      baseline_phase: ['start', 'end'],
       day_kind: ['intro', 'developmental', 'synthesis'],
       dimension: ['career', 'character', 'community'],
       message_kind: ['message', 'shared_reflection', 'pinned', 'announcement'],

@@ -18,8 +18,8 @@ import { useProfile } from '@/features/auth/api'
 import { useUserId } from '@/features/auth/use-auth'
 import { cn } from '@/lib/utils'
 
-// Where the first-time setup goes after the avatar step.
-const AFTER_SETUP = '/home'
+// Where the first-time setup goes after the avatar step: the optional baseline questions, then home.
+const AFTER_SETUP = '/questions'
 
 /**
  * The avatar builder (PLAN.md 3.3). Straight after someone first signs in (?setup=1, from home) and from

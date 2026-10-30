@@ -164,6 +164,12 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
       Jan 2, by 2 April 2027.
 - [ ] Once production Supabase exists, check it's in London too, or tell Claude to change "Where it's kept".
 
+## Baseline questions (built Oct 31 with sample wording)
+
+- [ ] Get the three questions' wording from the project lead (career, character, community; by Nov 5), and
+      what 1 and 5 should mean. Send it to Claude, or put it in `src/features/baseline/questions.ts` in place
+      of the "Sample:" questions.
+
 ## Before Nov 8 (public sign-up)
 
 - [ ] Upgrade Resend to **Pro** ($20 a month). The free plan stops at 100 emails a day, and Youth Sunday

@@ -49,6 +49,10 @@ export default function PrivacyRoute() {
             you’ve finished, and the messages you post in your pod.
           </li>
           <li>
+            <strong>If you choose to answer them:</strong> three short questions about where you are at the
+            start (and again at the end), on a scale of 1 to 5, with an optional note.
+          </li>
+          <li>
             <strong>If you report a message:</strong> the reason you give.
           </li>
         </ul>
@@ -97,6 +101,10 @@ export default function PrivacyRoute() {
           </li>
           <li>
             <strong>Your email and WhatsApp number:</strong> the small project team who run the programme.
+          </li>
+          <li>
+            <strong>Your answers to the start and end questions:</strong> the project team, who look at them
+            as totals to learn how the 40 days help. Nobody in your pod sees them.
           </li>
           <li>
             <strong>Reports:</strong> moderators see the reason given but not who reported. Your pod’s

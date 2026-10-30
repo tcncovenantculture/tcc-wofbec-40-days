@@ -628,10 +628,27 @@ Build notes (Oct 31, overnight run):
 
 ### 3.4 Baseline questions (optional)
 
-- [ ] After the avatar step: three optional questions (career, character, community), with wording from
-      the project lead; 1 to 5 scale plus optional text; "Skip" is prominent
-- [ ] Table `baseline_responses (user_id, phase 'start'|'end', career int, character int, community int,
+- [x] After the avatar step: three optional questions (career, character, community), with wording from
+      the project lead; 1 to 5 scale plus optional text; "Skip" is prominent. **Built with sample wording**
+      (each question starts "Sample:"); the real wording goes in `src/features/baseline/questions.ts`.
+- [x] Table `baseline_responses (user_id, phase 'start'|'end', career int, character int, community int,
       note text, created_at)`, own rows only
+
+Build notes (Oct 31, overnight run):
+
+- `/questions` (lazy) comes straight after the avatar step on first sign-in, then home. It isn't offered again
+  if someone closes the app before it (it's optional), and opening it after answering says thanks.
+- Each question is a row of five large buttons (1 to 5) with the end labels under it ("Not at all", "A great
+  deal": sample labels too); tapping the chosen number again clears it, so any question can be left out.
+  "Save my answers" needs at least one answer or a note. "Skip" is at the top and as a full-size button
+  under Save, and skipping stores nothing.
+- The intro says only the project team sees the answers, as totals. `/privacy` lists them under what's
+  collected and who sees what.
+- Table: primary key `(user_id, phase)`, every answer nullable, note up to 1,000 characters, deleted with the
+  account. Insert and read your own only; no updates (answered once per phase); moderators can't read them.
+  10 pgTAP tests. The `end` phase is ready for Phase 6's Day 40 offer (`useSaveBaseline('end')`).
+- The form uses plain React state rather than react-hook-form, like the report sheet: four optional fields
+  with nothing to validate beyond the database checks.
 
 ### 3.5 Load and email check
 
