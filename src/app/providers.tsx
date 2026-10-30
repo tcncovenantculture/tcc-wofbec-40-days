@@ -4,6 +4,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { useState, type ReactNode } from 'react'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/features/auth/session'
+import { LocalSettingsProvider } from '@/features/settings/local-settings'
 
 const WEEK = 7 * 24 * 60 * 60 * 1000
 
@@ -44,6 +45,9 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <PersistQueryClientProvider
       client={queryClient}
+      // The saved copy can be a little behind (it's written at most once a second), so check everything
+      // once after restoring. Offline, these refetches pause and the saved data stays on screen.
+      onSuccess={() => void queryClient.invalidateQueries()}
       persistOptions={{
         persister,
         maxAge: WEEK,
@@ -54,7 +58,9 @@ export function Providers({ children }: { children: ReactNode }) {
         },
       }}
     >
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <LocalSettingsProvider>{children}</LocalSettingsProvider>
+      </AuthProvider>
       <Toaster position="top-center" />
     </PersistQueryClientProvider>
   )

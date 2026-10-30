@@ -35,6 +35,33 @@ export function programmeDay(now: Date): ProgrammeDay {
   return { phase: 'wofbec', day }
 }
 
+/** The last lesson day that's open by the clock: 0 before Day 1, today's day during the 40, then 40. */
+export function unlockedThrough(today: ProgrammeDay): number {
+  if (today.phase === 'before') return 0
+  if (today.phase === 'lesson') return today.day
+  return LESSON_DAYS
+}
+
+/**
+ * Where to point someone after finishing `current`: the earliest open day they haven't done yet (only days
+ * whose content is loaded, `available`), or null when they're up to date.
+ */
+export function nextOpenDay({
+  current,
+  today,
+  done,
+  available,
+}: {
+  current: number
+  today: ProgrammeDay
+  done: Set<number>
+  available: number[]
+}): number | null {
+  const through = unlockedThrough(today)
+  const open = available.filter((day) => day <= through && day !== current && !done.has(day))
+  return open.length > 0 ? Math.min(...open) : null
+}
+
 /** When a day unlocks: 00:00 Lagos time on Nov 13 + day. Used by the content loader for `publish_at`. */
 export function publishAtFor(day: number): Date {
   if (!Number.isInteger(day) || day < 1 || day > WOFBEC_DAY) {

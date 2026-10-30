@@ -1,28 +1,14 @@
 import { z } from 'zod'
 import { Constants } from '../../lib/database.types.ts'
 import { DAYS_PER_MODULE } from '../../lib/programme.ts'
+import { youtubeId } from './youtube.ts'
+
+export { youtubeId }
 
 // The content file format (content/module-N.json), shared by scripts/load-content.ts and the app.
 // Imports here are relative with .ts extensions so Node can run the loader without a bundler.
 
 const text = (what: string) => z.string().trim().min(1, `${what} can't be empty`)
-
-/** The video id from a YouTube link (watch, youtu.be, embed or shorts), or null. */
-export function youtubeId(url: string): string | null {
-  try {
-    const { hostname, pathname, searchParams } = new URL(url)
-    const host = hostname.replace(/^(www\.|m\.)/, '')
-    const id =
-      host === 'youtu.be'
-        ? pathname.slice(1)
-        : host === 'youtube.com' || host === 'youtube-nocookie.com'
-          ? (searchParams.get('v') ?? pathname.match(/^\/(?:embed|shorts)\/([^/]+)/)?.[1] ?? null)
-          : null
-    return id && /^[\w-]{11}$/.test(id) ? id : null
-  } catch {
-    return null
-  }
-}
 
 const aiGenerated = z.boolean({ error: 'Say whether this is AI-generated: "ai_generated": true or false' })
 

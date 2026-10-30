@@ -4,6 +4,7 @@ import {
   daysUntilDayOne,
   formatInLagos,
   moduleFor,
+  nextOpenDay,
   parseAsOf,
   programmeDay,
   publishAtFor,
@@ -73,6 +74,40 @@ describe('publishAtFor', () => {
 
   it.each([0, 51, 1.5, Number.NaN])('rejects %s', (day) => {
     expect(() => publishAtFor(day)).toThrow(RangeError)
+  })
+})
+
+describe('nextOpenDay', () => {
+  const lesson = (day: number) => ({ phase: 'lesson' as const, day, module: moduleFor(day) })
+  const all = Array.from({ length: 40 }, (_, i) => i + 1)
+
+  it('points to the earliest open day not done yet', () => {
+    expect(nextOpenDay({ current: 7, today: lesson(7), done: new Set([1, 2, 4]), available: all })).toBe(3)
+  })
+
+  it('points to today after catching up on an older day', () => {
+    expect(
+      nextOpenDay({ current: 6, today: lesson(7), done: new Set([1, 2, 3, 4, 5]), available: all }),
+    ).toBe(7)
+  })
+
+  it('is null when everything open is done', () => {
+    expect(
+      nextOpenDay({ current: 7, today: lesson(7), done: new Set([1, 2, 3, 4, 5, 6]), available: all }),
+    ).toBeNull()
+  })
+
+  it('never points to a day that is still locked or not loaded', () => {
+    expect(nextOpenDay({ current: 2, today: lesson(3), done: new Set([1]), available: [1, 2] })).toBeNull()
+    expect(
+      nextOpenDay({ current: 1, today: { phase: 'before' }, done: new Set(), available: all }),
+    ).toBeNull()
+  })
+
+  it('treats all 40 days as open during the waiting days', () => {
+    expect(
+      nextOpenDay({ current: 40, today: { phase: 'waiting', day: 43 }, done: new Set(), available: all }),
+    ).toBe(1)
   })
 })
 

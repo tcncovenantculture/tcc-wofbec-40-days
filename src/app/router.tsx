@@ -1,6 +1,5 @@
 import { lazy } from 'react'
 import { Route, Routes } from 'react-router'
-import DayRoute from '@/routes/day'
 import HomeRoute from '@/routes/home'
 import LandingRoute from '@/routes/landing'
 import NotFoundRoute from '@/routes/not-found'
@@ -12,6 +11,8 @@ import { SignedInLayout } from './signed-in-layout'
 // form libraries (react-hook-form, zod), so they stay out of the first load too.
 const SignupRoute = lazy(() => import('@/routes/signup'))
 const VerifyRoute = lazy(() => import('@/routes/verify'))
+// The day screen carries the Markdown renderer.
+const DayRoute = lazy(() => import('@/routes/day'))
 const JourneyRoute = lazy(() => import('@/routes/journey'))
 const PodRoute = lazy(() => import('@/routes/pod'))
 const SettingsRoute = lazy(() => import('@/routes/settings'))

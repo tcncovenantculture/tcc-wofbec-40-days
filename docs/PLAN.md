@@ -268,9 +268,10 @@ The content file format is in `content/module-1.template.json`. One file per cur
 - [ ] `scripts/compress-media.ts`: resizes images to at most 1200px wide as WebP (target 150 KB or less) with
       sharp; re-encodes audio to 64 kbps mono; uploads to the Storage bucket `media` (public read); rewrites
       URLs in the JSON
-- [ ] Video: not self-hosted. Use an unlisted YouTube link rendered as a tap-to-load facade (thumbnail only
-      until tapped), with the transcript beside it.
-- [ ] Load Module 1 to local and staging as soon as the file arrives
+- [x] Video: not self-hosted. Use an unlisted YouTube link rendered as a tap-to-load facade (thumbnail only
+      until tapped), with the transcript beside it. Plays from `youtube-nocookie.com`.
+- [ ] Load Module 1 to local and staging as soon as the file arrives. The real file hasn't arrived; the
+      sample modules (`content/samples/`, all 40 days) are loaded to local and staging with `--publish-now`.
 
 ### 1.5 Home (`/home`)
 
@@ -297,21 +298,34 @@ Build notes (Oct 30):
 
 ### 1.6 Daily screen (`/day/:n`)
 
-- [ ] Five steps as a vertical stepper on one route (`?step=`), with back and next. Steps:
+- [x] Five steps as a vertical stepper on one route (`?step=`), with back and next. Steps:
       **Encounter** (scripture reference and text, introduction, body markdown, optional media),
       **Understand** (reflection prompts, each a textarea that autosaves after 800 ms idle),
       **Apply** (practical action with its dimension badge: career, character, community),
       **Connect** (the pod prompt; links to the pod thread, and Phase 2 adds "Share a reflection"),
       **Complete** (button writes `progress`; confetti; shows the next step: tomorrow's unlock time, or the
       next catch-up day)
-- [ ] `kind = 'synthesis'` uses a distinct template: no stepper, a calm layout with the logo strip, a
+- [x] `kind = 'synthesis'` uses a distinct template: no stepper, a calm layout with the logo strip, a
       "Look back on this module" list of the module's practical actions, and the pod prompt given most space.
       It must not look like a lesson.
-- [ ] Body markdown through `react-markdown` (no raw HTML)
-- [ ] Media respects text-only mode: images become their alt text; audio and video become their transcript
-- [ ] Media flagged `ai_generated` shows an "AI-generated" label
-- [ ] A day that isn't unlocked yet shows a friendly "Unlocks on <date>" (RLS returns nothing, so the UI
+- [x] Body markdown through `react-markdown` (no raw HTML)
+- [x] Media respects text-only mode: images become their alt text; audio and video become their transcript
+- [x] Media flagged `ai_generated` shows an "AI-generated" label
+- [x] A day that isn't unlocked yet shows a friendly "Unlocks on <date>" (RLS returns nothing, so the UI
       handles the empty result)
+
+Build notes (Oct 30):
+
+- Every step stays mounted (inactive ones are `hidden`), so a half-typed answer survives moving between
+  steps. Answers also save on blur and when the screen closes, and saves for one box run in order.
+- The clock decides whether a day is open (so `?asOf` works on staging, where everything is published);
+  RLS hides it as well. A day that's open by the clock but not in the database shows "Not quite ready".
+- The synthesis day keeps the private answer boxes ("Just for you") and a "Finish Day 8" button, so it
+  counts towards progress like any other day.
+- Text-only mode lives in a small localStorage context (`features/settings`) and is on by default when
+  Data Saver is. Its toggle sits on the Settings placeholder now (the plan has it in Phase 5).
+- The day screen is lazy-loaded (42 KB gzipped with react-markdown); zod loads with day content. Confetti
+  loads on completion and is skipped for people who prefer reduced motion.
 
 ### 1.7 Reviewer preview (`/preview/:n`)
 
