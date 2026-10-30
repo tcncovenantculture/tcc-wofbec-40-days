@@ -553,14 +553,33 @@ Build notes (Oct 30):
 
 ### 3.2 Privacy and consent
 
-- [ ] `/privacy`: what's collected (name, segment, email, optional WhatsApp number, reflections, progress,
+- [x] `/privacy`: what's collected (name, segment, email, optional WhatsApp number, reflections, progress,
       pod messages), why, who can see what (reflections: only you; pod messages: your pod and moderators),
       where it's stored (hosting outside Nigeria), how long (delete 90 days after Jan 2 unless the project
       lead decides otherwise), how to delete your account, contact email
 - [ ] Have the privacy notice checked against Nigeria's NDPA requirements, including cross-border transfer,
       before Nov 8. That's a human review, not code.
-- [ ] Settings: change reminder consent; delete account (RPC removes profile, reflections, progress and
+- [x] Settings: change reminder consent; delete account (RPC removes profile, reflections, progress and
       memberships; messages become "Former member")
+
+Build notes (Oct 31, overnight run):
+
+- **Consent record:** `profiles.privacy_accepted_at`, set by the sign-up trigger from `privacy_accepted: true`
+  in the form's metadata, with the server's time. Nullable: accounts made before it existed have none, and the
+  trigger doesn't refuse a sign-up without it (the form already requires the tick). Nobody can edit it.
+- **The contact email isn't decided:** the notice says "[contact email to come]" (`CONTACT` at the top of
+  `src/routes/privacy.tsx`). It names Supabase in London, Vercel and Resend, and says there's no age question
+  and no trackers. "Last updated" is a fixed date in the page; change it with the words.
+- **Delete account** is `delete_my_account()`: it deletes the `auth.users` row, which cascades to the profile,
+  progress, reflections and pod membership; messages keep their text with no author ("Former member") and
+  reports stay open with no reporter. The app then signs out on the phone (the server's 403 for the missing
+  user is expected). A two-step sheet explains what goes and what stays. If the facilitator leaves, the pod
+  has no facilitator until someone sets one in Studio.
+- **Sign-out now removes the saved query cache at once.** It used to be rewritten up to a second later, so a
+  phone closed in that second kept the previous person's cached profile (`forgetCachedData` in
+  `features/auth/session.tsx`).
+- Settings is now a real screen: reminder consent (saves straight away, with a toast), text only, Moderation
+  (moderators), the privacy notice, sign out, and delete account at the bottom.
 
 ### 3.3 Avatars
 

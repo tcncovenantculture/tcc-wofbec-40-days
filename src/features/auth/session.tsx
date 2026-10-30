@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { AUTH_STORAGE_KEY } from '@/lib/auth-storage'
+import { AUTH_STORAGE_KEY, QUERY_CACHE_KEY } from '@/lib/auth-storage'
 import { supabase } from '@/lib/supabase'
 import { AuthContext, type AuthState } from './use-auth'
 
@@ -31,6 +31,19 @@ function savedSession(): Session | null {
   }
 }
 
+/**
+ * Forgets everything the previous person loaded. The saved copy is removed straight away too: it's only
+ * rewritten up to a second later, and a phone closed in that second would otherwise keep it.
+ */
+function forgetCachedData(queryClient: QueryClient) {
+  queryClient.clear()
+  try {
+    localStorage.removeItem(QUERY_CACHE_KEY)
+  } catch {
+    // Storage blocked: nothing was saved
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
   const queryClient = useQueryClient()
@@ -43,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const session = reported ?? (event === 'INITIAL_SESSION' ? savedSession() : null)
       const nextUserId = session?.user.id ?? null
       // Phones get shared: never show one person's cached data to the next.
-      if (userId.current !== null && userId.current !== nextUserId) queryClient.clear()
+      if (userId.current !== null && userId.current !== nextUserId) forgetCachedData(queryClient)
       userId.current = nextUserId
       setState(session ? { status: 'signed-in', session } : { status: 'signed-out' })
     })

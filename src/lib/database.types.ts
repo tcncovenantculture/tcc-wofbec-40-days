@@ -225,6 +225,7 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          privacy_accepted_at: string | null
           reminder_email: boolean
           role: Database['public']['Enums']['user_role']
           segment: Database['public']['Enums']['segment']
@@ -238,6 +239,7 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          privacy_accepted_at?: string | null
           reminder_email?: boolean
           role?: Database['public']['Enums']['user_role']
           segment: Database['public']['Enums']['segment']
@@ -250,6 +252,7 @@ export type Database = {
           display_name?: string
           email?: string
           id?: string
+          privacy_accepted_at?: string | null
           reminder_email?: boolean
           role?: Database['public']['Enums']['user_role']
           segment?: Database['public']['Enums']['segment']
@@ -464,6 +467,7 @@ export type Database = {
       }
     }
     Functions: {
+      delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined }
       hide_message: { Args: { message_id: string }; Returns: undefined }
       is_facilitator_of: { Args: { pod: string }; Returns: boolean }
       is_pod_member: { Args: { pod: string }; Returns: boolean }

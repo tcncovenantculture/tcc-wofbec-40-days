@@ -3,7 +3,7 @@
 Accounts, dashboards and DNS: the parts of the build only you can do. Tick items as you go. API keys and
 passwords go straight into the dashboard or your `.env.*` files, never into chat or this file.
 
-Last updated Oct 30.
+Last updated Oct 31.
 
 ## Now: for the Nov 1 working version
 
@@ -151,6 +151,18 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
       The words are a first draft for you (and Pastor Yemi) to change.
 - [ ] Paste the site's link into a WhatsApp chat (to yourself) and check the preview shows the "40 Days"
       picture. Once `40days.tcnikeja.org` is added in Vercel, redeploy so the preview uses that address.
+
+## Privacy notice (built Oct 31, overnight)
+
+- [ ] Choose the contact email for privacy questions and account requests (it could be the same church
+      inbox as the email reply-to). Tell Claude, or replace `[contact email to come]` in
+      `src/routes/privacy.tsx`.
+- [ ] Have someone check `/privacy` against Nigeria's NDPA before Nov 8, especially the cross-border
+      transfer (data in London), the lawful basis (consent), and whether it should name the church as the
+      organisation responsible for the data. The words are a first draft.
+- [ ] Confirm the retention period with the project lead. The notice says everything is deleted 90 days after
+      Jan 2, by 2 April 2027.
+- [ ] Once production Supabase exists, check it's in London too, or tell Claude to change "Where it's kept".
 
 ## Before Nov 8 (public sign-up)
 
