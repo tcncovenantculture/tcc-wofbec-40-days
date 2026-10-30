@@ -60,7 +60,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts', 'supabase/functions/**/*.test.ts'],
     environment: 'node',
     // Vitest skips CSS by default; tokens.test.ts reads index.css with ?raw
     css: { include: [/src\/index\.css/] },

@@ -259,3 +259,20 @@ insert into public.messages (pod_id, day_number, author_id, kind, body, created_
    'Same here. Praying for you, Dayo.', now() - interval '2 hours'),
   ('b1000000-0000-4000-8000-000000000002', 1, 'a1000000-0000-4000-8000-000000000010', 'message',
    'Starting today. Glad to be in this pod.', now() - interval '1 hour');
+
+-- Local only: email the moderators when a message is reported -------------------------------------------
+-- The same as the Database Webhook set up in the dashboard on staging and prod (Database → Webhooks): it
+-- calls the notify-report edge function, which sends to Mailpit locally (http://127.0.0.1:54324).
+
+create extension if not exists pg_net;
+
+create trigger notify_report
+after insert on public.reports
+for each row
+execute function supabase_functions.http_request(
+  'http://kong:8000/functions/v1/notify-report',
+  'POST',
+  '{"Content-Type": "application/json"}',
+  '{}',
+  '5000'
+);

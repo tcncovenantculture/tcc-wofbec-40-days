@@ -16,9 +16,11 @@ current state and what to do next. Update it at the end of each session.
   pods, members and messages with RLS; the pod screen with live chat; sharing a reflection; the WhatsApp
   link. Its acceptance passed locally (three Playwright phones) and still has to be shown on staging.
 - **Phase 3 started Oct 30** (again ahead of the staging walkthroughs, at the user's request). **3.1 landing
-  is done.** Agreed order from here (user, Oct 30): **4.1 reports and moderation next, pulled forward** so it
-  exists before sign-up opens on Nov 8 (brief rule 5), then 3.2 privacy and consent, 3.3 avatars, 3.4
-  baseline questions (wording still due from the project lead), 3.5 load and email check (needs Resend).
+  is done.** **4.1 reports and moderation is done** (pulled forward so it exists before sign-up opens on
+  Nov 8): reporting, the facilitator's notice, `/mod`, and the `notify-report` email, checked locally via
+  Mailpit. On staging the migration is applied, but the function isn't deployed and the webhook and secrets
+  aren't set (user steps in SETUP-TODO). Remaining order: 3.2, 3.3, 4.4, 4.2, 3.4 (sample wording), 4.3,
+  then Phase 5. 3.5 needs Resend. **`docs/OVERNIGHT.md` has the instructions for an unattended run.**
 - Checks: typecheck, lint, 136 Vitest tests, 75 pgTAP tests, the Playwright smoke test and `pnpm size` pass.
   The landing page is **91.8 kB as served** (budget 100); the signed-in app's JS is **184.9 kB gzipped**
   (budget 200). `/pod` is a lazy 21 kB chunk, like the other screens.
@@ -45,12 +47,11 @@ current state and what to do next. Update it at the end of each session.
    dashboard steps, testers signing up, then test pods (`pnpm pods:test`; the user may send the emails for
    Claude to run it). If either test turns up bugs, fix them before starting Phase 3.
 
-## Next: 4.1 reports and moderation (pulled forward), then the rest of Phase 3
+## Next: 3.2 privacy and consent, then the order in docs/OVERNIGHT.md
 
-Follow PLAN.md 4.1: the `reports` table, the report sheet behind the message options' (currently switched
-off) Report button, the facilitator's badge, `/mod` for moderators, and the `notify-report` edge function.
-The email needs Resend, which isn't set up yet: build and test everything else, with the function ready to
-switch on once `RESEND_API_KEY` exists. Then PLAN.md 3.2 onwards. Things to know:
+Follow `docs/OVERNIGHT.md` (written for an unattended run, but the order and rules apply to any session).
+In a local session with the user, also deploy `notify-report` to staging when asked
+(`pnpm exec supabase functions deploy notify-report`). Things to know:
 - 3.3 avatars: choosing the DiceBear style (and checking its licence) also decides whether it replaces the
   initials avatars in the pod header and the drawn pod picture (`src/features/pods/pod-picture.ts`).
 - Production Supabase (a separate Pro org) and Resend Pro are needed before Nov 8.

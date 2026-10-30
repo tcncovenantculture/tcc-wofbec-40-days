@@ -130,6 +130,21 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
 - [ ] Test: sign up on staging with your own email. The code comes from `hello@40days.tcnikeja.org`, and
       Resend → Emails shows it delivered.
 
+## Reporting and moderation (built Oct 30)
+
+- [ ] Ask Claude (in a local session) to deploy the `notify-report` function to staging. It's built and
+      tested, just not deployed.
+- [ ] Supabase staging → Database → Webhooks (turn webhooks on if asked) → Create a new hook: name
+      `notify-report`, table `reports`, event **Insert**, type **Supabase Edge Functions** → `notify-report`,
+      method POST, timeout 5000. No headers needed.
+- [ ] Supabase staging → Edge Functions → Secrets: `SITE_URL` = `https://tcc-wofbec-40-days.vercel.app`.
+      Once Resend works, also `RESEND_API_KEY` (a sending key) and
+      `NOTIFY_FROM` = `Covenant Culture 40 Days <hello@40days.tcnikeja.org>`.
+- [ ] After church leaders sign up: Table Editor → `profiles` → their row → `role` = `moderator`. They then
+      get every report by email, and Settings shows them "Moderation".
+- [ ] Ask the project lead: should reports also go to church moderators, not only the pod's facilitator?
+      (Built that way; the plan recommends it.)
+
 ## Landing page (built Oct 30)
 
 - [ ] After the next deploy, open the live site's home page on your phone while signed out and read it through.

@@ -601,8 +601,10 @@ a throttled "Slow 3G" profile, with no app install.
       handled_by, handled_at, created_at)`. Reporters insert; moderators select and update.
 - [x] Report sheet: reason chips (unkind, unsafe, spam, something else) plus optional text; confirmation copy
       tells the reporter a church leader will see it
-- [ ] Database webhook on `reports` insert → edge function `notify-report` → email to every moderator
-      through Resend, with the message, pod and a link to `/mod`
+- [x] Database webhook on `reports` insert → edge function `notify-report` → email to every moderator
+      through Resend, with the message, pod and a link to `/mod`. Built and checked locally (Oct 30): the
+      seed's trigger calls the function, which emails moderators through Mailpit. **Staging still needs** the
+      function deployed, the webhook made in the dashboard and the secrets set (docs/SETUP-TODO.md).
 - [x] Facilitator gets an in-app badge on reports from their pod, which satisfies the brief's "escalation
       path to facilitators". **Confirm with the project lead** that reports also going to church moderators
       is wanted. It's recommended because facilitators are randomly picked peers.
@@ -627,6 +629,12 @@ Build notes (Oct 30, built ahead of Phase 3's remaining tasks so it exists befor
   tap to post, and recent ones can be hidden.
 - The reporter's name isn't shown on `/mod` (the plan doesn't ask for it), though it's recorded. If the
   church wants it for safeguarding follow-up, it's a small change.
+- **notify-report needs no key** (`verify_jwt = false`): it claims `notified_at` atomically before sending,
+  so a repeated or direct call can't send twice. Email wording is in `supabase/functions/_shared/
+  report-email.ts` (pure, HTML-escaped, Vitest-tested). Resend when `RESEND_API_KEY` and `NOTIFY_FROM` are
+  set, Mailpit when `MAILPIT_URL` is (local, in config.toml), otherwise it only logs. The webhook trigger
+  can't live in a migration (its URL differs per project), so it's in the seed locally and made in the
+  dashboard on staging and prod.
 
 ### 4.2 Pod formation (`scripts/form-pods.ts`)
 

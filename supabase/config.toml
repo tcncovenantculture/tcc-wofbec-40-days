@@ -396,8 +396,15 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+# Local only, and not secret: notify-report sends moderator emails to Mailpit and links to the dev
+# server. On staging and prod these are function secrets (supabase secrets set), with Resend instead.
+[edge_runtime.secrets]
+MAILPIT_URL = "http://host.docker.internal:54324"
+SITE_URL = "http://localhost:5271"
+
+# Called by a Database Webhook, not by the app. It needs no key: each report is emailed about once.
+[functions.notify-report]
+verify_jwt = false
 
 [analytics]
 enabled = true
