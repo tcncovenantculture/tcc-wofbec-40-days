@@ -22,6 +22,7 @@
     "db:types": "supabase gen types typescript --local > src/lib/database.types.ts && prettier --write src/lib/database.types.ts",
     "content:load": "node scripts/load-content.ts",
     "media:compress": "node scripts/compress-media.ts",
+    "pods:form": "node scripts/form-pods.ts",
     "pods:test": "node scripts/test-pod.ts",
     "icons": "pwa-assets-generator",
     "og:image": "node scripts/og-image.ts"

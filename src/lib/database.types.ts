@@ -468,6 +468,7 @@ export type Database = {
     }
     Functions: {
       delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined }
+      form_pods: { Args: { joiners?: Json; new_pods?: Json }; Returns: undefined }
       hide_message: { Args: { message_id: string }; Returns: undefined }
       is_facilitator_of: { Args: { pod: string }; Returns: boolean }
       is_pod_member: { Args: { pod: string }; Returns: boolean }

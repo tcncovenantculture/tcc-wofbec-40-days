@@ -690,16 +690,46 @@ Build notes (Oct 30, built ahead of Phase 3's remaining tasks so it exists befor
 
 ### 4.2 Pod formation (`scripts/form-pods.ts`)
 
-- [ ] Reads participants without a pod, grouped by segment, shuffled with a seed printed in the output
-- [ ] Packs into pods of 5. The remainder `r` is handled as: r = 1 → one pod of 6; r = 2 → two pods of 6;
+- [x] Reads participants without a pod, grouped by segment, shuffled with a seed printed in the output
+- [x] Packs into pods of 5. The remainder `r` is handled as: r = 1 → one pod of 6; r = 2 → two pods of 6;
       r = 3 or 4 → one pod of that size; segments with fewer than 4 people → flagged for manual placement
-- [ ] Picks one facilitator per pod at random; generates a friendly pod name from a fixed word list (for
+- [x] Picks one facilitator per pod at random; generates a friendly pod name from a fixed word list (for
       example "Rooftop", "Lantern", "Cedar") plus segment, unique
-- [ ] Dry run prints a CSV (pod, segment, name, facilitator) to review in a spreadsheet; `--commit` writes
+- [x] Dry run prints a CSV (pod, segment, name, facilitator) to review in a spreadsheet; `--commit` writes
       pods and members in one transaction; `--late` adds new sign-ups after Nov 13 to the smallest pod in
       their segment, up to 6
-- [ ] Vitest on the packing function for sizes 1 to 23
-- [ ] Planning numbers: 300 to 500 sign-ups means 60 to 100 pods
+- [x] Vitest on the packing function for sizes 1 to 23
+- [x] Planning numbers: 300 to 500 sign-ups means 60 to 100 pods
+
+Build notes (Oct 31, overnight run):
+
+- **Two cases the rule above doesn't cover cleanly, decided so every pod stays at 4 to 6 (confirm with the
+  project lead):** r = 3 makes **two pods of 4** (one pod of 5 gives a person to the 3), because a pod of 3 is
+  below the minimum. **Seven people** in a segment (one pod of 5 plus r = 2, with no second pod to make a 6)
+  make one pod of 6 and leave **one person to place by hand**. Fewer than 4 are all placed by hand. All in
+  `podSizes` (`scripts/lib/pods.ts`), with the expected pods for every size from 1 to 23 in the tests and
+  the 4-to-6 rule checked up to 600.
+- **Who's placed:** participants only (moderators and reviewers are left out), and only once they've
+  confirmed their email with a code (read through the Auth admin API), and not already in a pod.
+- **Repeatable:** people are sorted by id, then each segment is shuffled with the seed (mulberry32), so the
+  same seed and the same people always give the same pods. The dry run prints the seed; `--commit --seed …`
+  writes exactly what was reviewed, as long as sign-ups are frozen in between.
+- **Names:** one word from a list of 110 (land, house and gospel words, including Iroko, Baobab and Rooftop),
+  unique across all pods, ignoring case and skipping names already used. If they ever run out, names get a
+  number ("Cedar 2"). The segment isn't in the name: it's stored on the pod and shown in the CSV, and members
+  already know their stage.
+- **CSV:** `pod,segment,name,email,facilitator` on standard output (email added so people with the same name
+  can be told apart); the summary goes to standard error, so `pnpm -s pods:form > pods.csv` keeps a clean
+  file. People to place by hand appear with the pod `(place by hand)`.
+- **One transaction:** `form_pods(new_pods, joiners)` (service role only) writes every pod and member or
+  nothing, and checks again: 4 to 6 per new pod, the facilitator is a member, everyone matches the pod's
+  segment, nobody is in two pods, and late joiners never take a pod past 6. 13 pgTAP tests.
+- **`--late`:** each new sign-up joins the smallest pod in their segment with room, ties at random; anyone
+  with nowhere to go is listed for placing by hand (`pnpm pods:test` can't be used on prod, so that's done in
+  Studio for now).
+- `--commit` on prod also needs `--yes`. Checked locally: a dry run on 23 confirmed undergraduates gives
+  5, 5, 5, 4, 4; the same seed gives the same CSV; `--commit` writes them; three late sign-ups fill the two
+  pods of 4 first.
 
 ### 4.3 Emails
 
