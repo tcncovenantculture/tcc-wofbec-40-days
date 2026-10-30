@@ -12,9 +12,10 @@ done properly beat six half-done.
 
 ## Where to work
 
-- Work on a new branch, `overnight/2026-10-31`, from `main`. Commit there: small commits, one task each,
-  with the task's `docs/PLAN.md` checkbox ticked in the same commit. Push the branch after each task if
-  pushing works. **Never push to `main`** and never force-push: the user reviews the branch in the morning.
+- Work on a new branch from `main`: `overnight/2026-10-31`, or the branch a cloud session gives you. Commit
+  there: small commits, one task each, with the task's `docs/PLAN.md` checkbox ticked in the same commit.
+  Push the branch after each task if pushing works. **Never push to `main`** and never force-push: the user
+  reviews the branch in the morning.
 - Commit messages end with: `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`
 
 ## Never, even if it seems helpful
@@ -30,7 +31,8 @@ done properly beat six half-done.
 ## Checks before every commit
 
 `pnpm typecheck && pnpm lint && pnpm test`, then `pnpm format:check` **on its own** (never piped through
-`tail`). After SQL changes: `supabase test db`. After UI changes: `pnpm build && pnpm size`.
+`tail`). After SQL changes: `supabase test db`. After UI changes: `pnpm build && pnpm size`. `pnpm size` and
+the scripts in `scripts/` need Node 24 (they run TypeScript directly); on an older Node, skip them and say so.
 
 If the local database can't run (no Docker, e.g. in a cloud session), still write the SQL and its pgTAP
 tests, but mark them **unverified** in the commit message and in `docs/HANDOFF.md`. Don't stack more SQL on
