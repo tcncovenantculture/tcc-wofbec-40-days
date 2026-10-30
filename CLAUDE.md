@@ -59,6 +59,7 @@ pnpm db:types                 # supabase gen types typescript --local > src/lib/
 pnpm content:load content/module-1.json [--target local|staging|prod]
 pnpm media:compress content/module-1.json [--target local|staging|prod]   # before content:load, if it has media
 pnpm pods:form [--commit]     # suggest pods (dry run prints CSV); --commit writes them
+pnpm pods:test --name "Leaders" first@x.com second@y.com [--target staging]   # test pod; --list, --remove; never prod
 ```
 
 ## Repo layout

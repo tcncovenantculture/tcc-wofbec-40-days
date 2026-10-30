@@ -511,6 +511,11 @@ see each other's messages; one shares a reflection; totals update after completi
 account in another pod sees none of it. The flow is shown on staging with Module 1 loaded and the theme
 applied.
 
+Build notes (Oct 30): every check above passed locally with three phones (Playwright, seeded pods). Staging
+has the schema but no pods, because the seed is local only and real pods come from 4.2. To test there, people
+sign up on staging and `pnpm pods:test --target staging --name "Leaders" first@… second@…` puts them in one
+pod (the first email facilitates; `--list` and `--remove` too; refused for prod).
+
 ---
 
 ## Phase 3: Public sign-up (Nov 4 to Nov 7) → QR live Nov 8

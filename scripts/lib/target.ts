@@ -24,11 +24,14 @@ export function parseTarget(value: string | undefined): Target {
 export function credentials(target: Target): { url: string; key: string } {
   if (target === 'local') {
     // Local keys are the CLI's fixed development keys.
-    const status = z
-      .object({ API_URL: z.string(), SECRET_KEY: z.string() })
-      .parse(
-        JSON.parse(execFileSync('pnpm', ['exec', 'supabase', 'status', '-o', 'json'], { encoding: 'utf8' })),
-      )
+    const status = z.object({ API_URL: z.string(), SECRET_KEY: z.string() }).parse(
+      JSON.parse(
+        execFileSync('pnpm', ['exec', 'supabase', 'status', '-o', 'json'], {
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'ignore'], // keep the CLI's notices out of the script's output
+        }),
+      ),
+    )
     return { url: status.API_URL, key: status.SECRET_KEY }
   }
   try {

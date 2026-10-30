@@ -38,6 +38,22 @@ On an Android phone, on the live site:
 
 - [ ] Tell OyinDamola about the Nov 1 re-baseline in today's progress note (the plan asks for this)
 
+## Pods and chat: for the Nov 2 leaders' test and the Nov 4 walkthrough
+
+Built Oct 30 and pushed: the pod screen with live chat, sharing a reflection, and the WhatsApp link.
+
+- [ ] Vercel: deploy the latest commit by hand (as usual after a push)
+- [ ] The testers sign up on the live site (each needs their own email; see the Resend section for why the
+      built-in sender may not reach everyone yet)
+- [ ] Put them in a test pod: send Claude their emails, or run
+      `pnpm pods:test --target staging --name "Leaders" first@… second@… third@…` yourself. The first email
+      becomes the facilitator. For the "other pod", make a second one (one person is enough).
+      `pnpm pods:test --target staging --list` shows the pods.
+- [ ] Walkthrough check (the plan's Phase 2 acceptance), on two phones in the same pod, using
+      `/pod?asOf=2026-11-14`: both post under Day 1's question and see each other's messages appear; one
+      shares a reflection from Day 1's Connect step; "done today" goes up after finishing Day 1; a third
+      account in another pod sees none of it.
+
 ## Domain and email: before the Nov 2 leaders' test
 
 ### Names (proposed, not yet agreed)

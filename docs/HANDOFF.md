@@ -10,15 +10,22 @@ current state and what to do next. Update it at the end of each session.
 - **Phase 0 is done.** Live at https://tcc-wofbec-40-days.vercel.app (Vercel Hobby, pointing at staging).
 - **Phase 1 code is done** (1.1 to 1.8, plus `compress-media.ts`): schema and RLS, programme clock, email-code
   sign-up and sign-in, content schema and loader, sample content for all 40 days, home, the daily screen
-  (lesson stepper and synthesis template), reviewer preview, local seed. All pushed to `main`.
-- Checks: typecheck, lint, 115 Vitest tests, 26 pgTAP tests (`supabase test db`) pass. First-load JS is
-  **180.6 KB gzipped** (budget 200); sign-up, verify, day, preview and the other screens are lazy-loaded.
-- **Staging** is linked (`supabase link` done) and has all four migrations and the 40 sample days, loaded
-  with `--publish-now` so testers can open any day with `?asOf`.
-- **Local**: `supabase db reset` applies the migrations and `supabase/seed.sql` (five test users, Module 1
-  open). Sign in with a seeded email; the code arrives in Mailpit (http://127.0.0.1:54324).
+  (lesson stepper and synthesis template), reviewer preview, local seed. Its acceptance (the phone test)
+  waits on the user's staging dashboard steps.
+- **Phase 2 code is done** (2.1 to 2.4), built Oct 30 ahead of the Phase 1 phone test at the user's request:
+  pods, members and messages with RLS; the pod screen with live chat; sharing a reflection; the WhatsApp
+  link. Its acceptance passed locally (three Playwright phones) and still has to be shown on staging.
+- Checks: typecheck, lint, 136 Vitest tests, 75 pgTAP tests (`supabase test db`) pass. First-load JS is
+  **about 178 KB gzipped** (budget 200); `/pod` is a lazy 21 KB chunk, like the other screens.
+- **Staging** is linked and has all seven migrations and the 40 sample days (loaded with `--publish-now`, so
+  testers can open any day with `?asOf`), but **no pods**: the seed is local only. `pnpm pods:test --target
+  staging --name "…" email…` puts testers in a pod.
+- **Local**: `supabase db reset` applies the migrations and `supabase/seed.sql`: 12 users, two pods of five
+  (Rooftop: Ada facilitates, with Bola, Dayo, Efe, Funmi; Lantern: Gbenga facilitates, with Chidi, Halima,
+  Ife, Jide), a few messages, one announcement, Module 1 open. Sign in with a seeded email; the code arrives
+  in Mailpit (http://127.0.0.1:54324).
 
-## What's left for the Nov 1 working version (mostly the user)
+## What's left (mostly the user)
 
 1. **The user's by-hand steps are in `docs/SETUP-TODO.md`**: the Vercel env var (`VITE_ENABLE_AS_OF`), the
    staging Auth dashboard (code template, OTP settings, Site URL), the Phase 1 phone test, the domain and
@@ -29,21 +36,26 @@ current state and what to do next. Update it at the end of each session.
 3. **Real Module 1:** when it arrives, save as `content/module-1.json`, run
    `pnpm media:compress content/module-1.json --target …` if it has media, then `pnpm content:load` to local
    and staging. It replaces the sample days by day number.
-4. **Phase 2 started Oct 30, before the Phase 1 phone test**, at the user's request (the test waits on their
-   dashboard steps). If the phone test turns up Phase 1 bugs, fix them first.
+4. **Acceptance on staging for Phases 1 and 2** waits on the user: deploy the latest commit on Vercel, the
+   dashboard steps, testers signing up, then test pods (`pnpm pods:test`; the user may send the emails for
+   Claude to run it). If either test turns up bugs, fix them before starting Phase 3.
 
-## Next: Phase 2 (pods and chat, Nov 1 to Nov 4)
+## Next: Phase 3 (public sign-up, Nov 4 to Nov 7)
 
-Follow PLAN.md 2.1 to 2.4. Pod screen links already point at `/pod`; the Connect step and the synthesis
-day's pod card are where "Share with my pod" goes. Seed: two pods of five with a facilitator in each
-(extend `supabase/seed.sql`; its fixed user ids start `a1000000-`).
+Follow PLAN.md 3.1 to 3.5 once the Phase 2 walkthrough has passed on staging. Things to know going in:
+- The landing page must load under 100 KB (excluding fonts), so keep the Supabase client off its first load.
+- 3.3 avatars: choosing the DiceBear style (and checking its licence) also decides whether it replaces the
+  initials avatars in the pod header and the drawn pod picture (`src/features/pods/pod-picture.ts`).
+- Production Supabase (a separate Pro org) and Resend Pro are needed before Nov 8.
+- Brief rule 5 wants reporting and moderation before sign-up opens on Nov 8, but the plan has 4.1 starting
+  Nov 7. The Report button is a switched-off placeholder until then. Worth raising with the user.
 
 ## Accounts
 
 | Account | State |
 | --- | --- |
 | GitHub | `tcncovenantculture/tcc-wofbec-40-days`, **private, owned by an organisation**. Remote `origin` over HTTPS; credentials in the macOS keychain; no `gh` CLI. |
-| Supabase staging | **`tccwofbec-40-staging`**, London `eu-west-2`, free org. Linked. Migrations: `pnpm exec supabase db push --linked`, with `SUPABASE_DB_PASSWORD` read from `.env.staging` in the shell without printing it. |
+| Supabase staging | **`tccwofbec-40-staging`**, London `eu-west-2`, free org. Linked; seven migrations applied. Migrations: `SUPABASE_DB_PASSWORD="$(node -e "process.loadEnvFile('.env.staging'); process.stdout.write(process.env.SUPABASE_DB_PASSWORD ?? '')")" pnpm exec supabase db push --linked --yes` (dry run first with `--dry-run`). The shell can't `source` `.env.staging` (a value has special characters), and the password must never be printed. |
 | `.env.staging` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (an `sb_secret_` key), `SUPABASE_DB_PASSWORD` filled; `RESEND_API_KEY` empty. Gitignored. |
 | Vercel | **Hobby**, project `tcc-wofbec-40-days`. Production and Preview env vars point at staging (switch Production to prod before Nov 8). Hobby doesn't support private organisation repos: if automatic deploys get blocked, the user deploys by hand from the dashboard (their call; don't add a CI deploy workaround). |
 | Resend | Not set up. Church domain **tcnikeja.org** (DNS at Namecheap, run by a church contact). Proposed, not yet agreed: **`40days.tcnikeja.org`** for both the app (Vercel CNAME) and the Resend sending domain (region `eu-west-1`), sender `hello@40days.tcnikeja.org`, name "Covenant Culture 40 Days". `mail.` and the root are taken by another church team's Resend. Steps and DNS findings in `docs/SETUP-TODO.md`. |
@@ -65,6 +77,25 @@ day's pod card are where "Share with my pod" goes. Seed: two pods of five with a
   and confetti load on demand. Phase 3's landing page must also keep the Supabase client off its first load.
 - **Settings placeholder** has text-only mode and sign out, both needed for testing before Phase 3.
 - **Audio** compression is written but untested: ffmpeg isn't installed (`brew install ffmpeg`).
+
+## Phase 2 decisions worth knowing (details in PLAN.md build notes)
+
+- **Message bodies are only readable through the `pod_messages` view** (`messages.body` isn't granted), so a
+  hidden message really is hidden from members. Realtime payloads therefore carry no body: a change is a
+  signal to refetch the thread.
+- **`pod_roster()` is a function, not the view the plan named**, because Supabase's advisor flags security
+  definer views as errors. It returns `user_id` too, so messages can carry names.
+- **Realtime** subscribes only while `/pod` is open, filtered by `pod_id`, and refetches the pod's threads
+  every time the subscription is confirmed (first connect and every reconnect). The channel must join with
+  the user's token; joined as anon, Realtime rejects the `pod_id` filter.
+- **Sending:** ids are made on the phone; sending, waiting and failed messages come from TanStack's mutation
+  cache (Try again / Remove); a duplicate-id error (23505) counts as sent.
+- **Report is a switched-off placeholder** in the message options until 4.1. Hide works for facilitators.
+- The pod picture for WhatsApp is drawn on a canvas, not DiceBear (that style is chosen in 3.3).
+- The viewport meta has `interactive-widget=resizes-content` (composer above the Android keyboard), and the
+  bottom nav hides while the composer has focus on touch screens (CSS `:has()` in `index.css`).
+- shadcn tabs were resized to 48px with 16px text; use them as they are now.
+- `pnpm pods:test` makes test pods on local or staging (never prod); `pods:form` (4.2) is the real one.
 
 ## Decisions in the code so far (and why)
 
@@ -146,7 +177,11 @@ day's pod card are where "Share with my pod" goes. Seed: two pods of five with a
   feature: `pnpm build`, then gzip the scripts named in `dist/index.html`. Phase 3 wants the landing page
   under 100 KB on first load (excluding fonts), so it will need the Supabase client kept off that route.
 - Pipe-free checks: run `pnpm format:check` on its own before committing. Piping it through `tail` hides a
-  failure (it happened twice on Oct 30).
+  failure (it happened three times on Oct 30). Prettier sometimes needs a second `--write` pass on long
+  method chains.
+- Playwright checks in the scratchpad: a Radix sheet marks the rest of the page hidden while it opens and
+  closes, so wait for elements (`waitFor`) instead of checking `isVisible()` straight after. Realtime is cold
+  for a few seconds after `supabase db reset`.
 - The staging project name differs from the plan (`tccwofbec-40-staging`). That's fine; don't rename it.
 
 ## How the user works
@@ -169,3 +204,4 @@ day's pod card are where "Share with my pod" goes. Seed: two pods of five with a
 - Original logo file (SVG or 1024px+ PNG)
 - From the plan: moderator names (by Nov 7), whether reports also go to moderators, baseline question
   wording (by Nov 5), data retention period
+- Whether to build reporting (4.1) earlier, so it exists before sign-up opens on Nov 8 (brief rule 5)
