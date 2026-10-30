@@ -204,12 +204,15 @@ Build notes (Oct 30):
 
 ### 1.2 Programme clock (`src/lib/programme.ts`)
 
-- [ ] `programmeDay(now)` returns a `{ phase: 'before'|'lesson'|'waiting'|'wofbec', day?: number, module?: number }`,
+- [x] `programmeDay(now)` returns a `{ phase: 'before'|'lesson'|'waiting'|'wofbec', day?: number, module?: number }`,
       computed in Africa/Lagos. Day 1 starts 2026-11-14 00:00 WAT; days 41 to 49 are `waiting`; day 50 and
       later are `wofbec`.
-- [ ] `publishAtFor(day)` is used by the content loader
-- [ ] `?asOf=YYYY-MM-DD` override, only when `import.meta.env.MODE !== 'production'`
-- [ ] Vitest coverage of boundaries: Nov 13 23:59, Nov 14 00:00, Day 8, Day 9, Day 40, Dec 24, Jan 1, Jan 2.
+- [x] `publishAtFor(day)` is used by the content loader
+- [x] `?asOf=YYYY-MM-DD` override, only when `import.meta.env.MODE !== 'production'`. Also allowed when
+      `VITE_ENABLE_AS_OF=true`, because every Vercel build is a production build and the Nov 1 test runs on
+      staging. Set it on Vercel while it points at staging; **remove it from Production before Nov 8.**
+      The override lasts for the browser tab session; `?asOf=off` clears it.
+- [x] Vitest coverage of boundaries: Nov 13 23:59, Nov 14 00:00, Day 8, Day 9, Day 40, Dec 24, Jan 1, Jan 2.
       UTC midnight must not be treated as Lagos midnight.
 
 ### 1.3 Auth (email OTP code)

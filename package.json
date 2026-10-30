@@ -22,6 +22,7 @@
     "icons": "pwa-assets-generator"
   },
   "dependencies": {
+    "@date-fns/tz": "1.5.0",
     "@fontsource/barlow-condensed": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
     "@hookform/resolvers": "^6.0.2",
@@ -29,6 +30,7 @@
     "@tanstack/react-query": "^5.105.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
+    "date-fns": "4.4.0",
     "lucide-react": "^1.63.0",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",
