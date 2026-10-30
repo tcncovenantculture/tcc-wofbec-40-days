@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import { LogoStrip } from '@/components/brand/logo-strip'
 import { Button } from '@/components/ui/button'
 import { useProgress } from '@/features/progress/api'
+import { ShareReflections } from '@/features/reflections/components/share-reflections'
 import { useDaySummaries, type Day } from '../api'
 import { BackToToday, CompleteSection, Reflections, Scripture } from './day-parts'
 import { DayMarkdown } from './day-markdown'
@@ -84,6 +85,7 @@ export function SynthesisDay({
           Just for you
         </h2>
         <Reflections day={day} preview={preview} />
+        <ShareReflections day={day} preview={preview} />
       </section>
 
       <CompleteSection day={day} preview={preview} label={`Finish Day ${day.day_number}`} />

@@ -2,6 +2,7 @@ import { Check } from 'lucide-react'
 import { useEffect, useRef, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { ShareReflections } from '@/features/reflections/components/share-reflections'
 import { cn } from '@/lib/utils'
 import type { Day } from '../api'
 import { BackToToday, CompleteSection, DayHeader, DimensionBadge, Reflections, Scripture } from './day-parts'
@@ -75,6 +76,7 @@ export function LessonDay({
         <Button asChild variant="outline" className="w-full">
           <Link to="/pod">Go to my pod</Link>
         </Button>
+        <ShareReflections day={day} preview={preview} />
       </>
     ),
     complete: <CompleteSection day={day} preview={preview} label={`Complete Day ${day.day_number}`} />,

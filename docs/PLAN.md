@@ -470,9 +470,21 @@ Build notes (Oct 30):
 
 ### 2.3 Share a reflection
 
-- [ ] On the Connect step and in My journey: "Share with my pod" on any saved reflection, with a preview and
+- [x] On the Connect step and in My journey: "Share with my pod" on any saved reflection, with a preview and
       confirm. It inserts a `shared_reflection` message (a copy of the text) into that day's thread. The
       reflection itself stays private.
+
+Build notes (Oct 30):
+
+- On the Connect step, and on Day 8 under "Just for you" (its answers sit below the pod card). My journey
+  gets the same button when it's built in 4.4.
+- The preview is editable and starts as the question plus the answer, so the pod has context. A pod message
+  holds 2,000 characters and an answer up to 5,000, so a long answer has to be shortened before sharing.
+- It uses the composer's send path: an id made on the phone, and it waits offline.
+- Without a pod yet, the answers show "Once your pod forms, you can share…"; the reviewer preview shows
+  nothing.
+- Checked locally: Ada sees the copy as "Shared a reflection", Bola's private answer is unchanged, and Ada
+  still can't read Bola's reflections.
 
 ### 2.4 WhatsApp link
 
