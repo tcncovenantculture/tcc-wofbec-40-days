@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useUserId } from '@/features/auth/use-auth'
+import { PlaceholderAvatar, UserAvatar } from '@/features/avatar/components/user-avatar'
 import { chatKeys } from '@/features/chat/api'
 import { AnnouncementCard } from '@/features/chat/components/announcement-card'
 import { Composer } from '@/features/chat/components/composer'
@@ -64,11 +65,19 @@ function PodScreen({ pod }: { pod: MyPod }) {
   const composerDay =
     tab === 'today' ? (lessonDay ?? undefined) : tab === 'general' ? null : (openDay ?? undefined)
 
-  const names = new Map(roster.data?.map((member) => [member.userId, member.displayName]))
+  const members = new Map(roster.data?.map((member) => [member.userId, member]))
   const authorName = (authorId: string | null) =>
-    (authorId ? names.get(authorId) : undefined) ?? (roster.isPending ? '…' : 'Former member')
+    (authorId ? members.get(authorId)?.displayName : undefined) ?? (roster.isPending ? '…' : 'Former member')
+  const authorAvatar = (authorId: string | null) => {
+    const member = authorId ? members.get(authorId) : undefined
+    return member ? (
+      <UserAvatar avatar={member.avatar} userId={member.userId} className="size-9" />
+    ) : (
+      <PlaceholderAvatar />
+    )
+  }
   const reported = new Map(reportedMessages.data?.map((r) => [r.messageId, r.reasons]))
-  const threadProps = { podId: pod.id, me, authorName, canHide: pod.isFacilitator, reported }
+  const threadProps = { podId: pod.id, me, authorName, authorAvatar, canHide: pod.isFacilitator, reported }
 
   return (
     <main

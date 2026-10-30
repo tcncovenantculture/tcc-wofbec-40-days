@@ -1,8 +1,8 @@
-import { avatarModule } from './initials'
+import { avatarModule } from './names'
 
 // The pod's picture for its WhatsApp group icon: the pod's first letter on a module colour picked from
 // the pod's avatar_seed, drawn on a canvas so there's nothing to download. 640px square, WhatsApp's size.
-// Phase 3 can swap in a DiceBear image once the style is chosen.
+// Kept as a letter rather than the members' DiceBear avatars: it's the group's icon, not one person's face.
 
 const SIZE = 640
 

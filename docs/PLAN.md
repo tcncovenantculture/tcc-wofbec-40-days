@@ -583,15 +583,48 @@ Build notes (Oct 31, overnight run):
 
 ### 3.3 Avatars
 
-- [ ] Choose one DiceBear style (try `adventurer`, `big-smile`, `fun-emoji`, `notionists`), check its licence
+- [x] Choose one DiceBear style (try `adventurer`, `big-smile`, `fun-emoji`, `notionists`), check its licence
       and add the attribution to `/privacy` or a credits line if it's CC BY, and check its skin-tone and hair
       range before committing
-- [ ] Background colours restricted to the five accent bases
-- [ ] Builder after verify: skin, hair, outfit or accessory, background, each a row of tappable options with
+- [x] Background colours restricted to the five accent bases
+- [x] Builder after verify: skin, hair, outfit or accessory, background, each a row of tappable options with
       a live preview. "Surprise me" and "Skip" both work; a skipped profile gets a seeded random avatar.
       Lazy-loaded route.
-- [ ] `<UserAvatar>` used in the pod header, roster and chat (small, memoised SVG data URI)
+- [x] `<UserAvatar>` used in the pod header, roster and chat (small, memoised SVG data URI)
 - [ ] Pod scene (stretch): the pod's avatars together on a simple themed scene beside the totals
+
+Build notes (Oct 31, overnight run):
+
+- **Style: Big Smile** (`@dicebear/big-smile`), design "Custom Avatar" by Ashley Seo, **CC BY 4.0**: credited
+  on `/privacy` (Credits) and under the builder. Compared from the packages themselves: Big Smile has eight
+  skin tones from very light to deep brown and 13 hairstyles including braids, a fro bun, curly bob and short
+  curls. Adventurer (CC BY) has only four skin tones; Notionists (CC0) is uncoloured line art, so no skin
+  tones at all; Fun Emoji (CC BY) is emoji faces with no skin or hair.
+- **Versions:** `@dicebear/core` and `@dicebear/big-smile` are both pinned at 9.4.2. Core 10 is out, but the
+  style packages are still 9.x and need core 9.
+- **Stored shape** (`profiles.avatar`): `{ v: 1, skin, hair, hairColour, accessory, eyes, mouth, background }`,
+  checked by a small hand-written parser in `features/avatar/options.ts` (zod stays out of the pod chunk).
+  `background` is a module number (1 to 5), so its colour always comes from `theme/tokens.ts`. Anything
+  missing or invalid draws the seeded avatar from the user id.
+- **A friendly subset only:** three cheerful eye styles and four smiles (no sad, angry or "starstruck" faces);
+  extras are none, glasses, sunglasses or a moustache (no clown nose, sleep mask, cat ears or the cartoon
+  crown); hair colours are the style's four natural ones. "Surprise me" picks from the same subset, with no
+  extras three times out of five.
+- **Builder** (`/avatar`, lazy, no bottom nav): a big preview with the person's name, then rows for skin,
+  hair, hair colour, extras and background, each option drawn as the avatar would look with it. Each row
+  scrolls sideways and opens centred on the current choice. Nothing saves until "Save my avatar".
+- **"After verify"** is done from home: someone whose `avatar` is null is sent to `/avatar?setup=1` once per tab
+  session. "Skip for now" saves their seeded avatar (so they're never asked again) and moves on even if
+  offline. From Settings ("Change your avatar", a row the plan didn't list but the builder needs a way back
+  in) it saves and returns to Settings, with Cancel instead of Skip.
+- **`<UserAvatar>`** draws an SVG data URI on the phone, memoised per avatar (nothing to download, so it works
+  offline and in text-only mode). It's in the pod header and beside other people's messages (not your own,
+  like most chat apps); a "Former member" gets a plain placeholder circle. The initials avatar is gone.
+- **Size:** DiceBear and Big Smile are a 23 kB gzipped lazy chunk shared by `/pod` and `/avatar`. First load is
+  unchanged (184 kB).
+- The WhatsApp pod picture stays the drawn letter: it's the group's icon, not one person's face.
+- Seed: every seeded user has an avatar except Funmi (shows the seeded fallback). Sign up with a new email to
+  see the builder.
 
 ### 3.4 Baseline questions (optional)
 

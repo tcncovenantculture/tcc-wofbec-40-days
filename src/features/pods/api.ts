@@ -16,7 +16,13 @@ export type MyPod = {
   isFacilitator: boolean
 }
 
-export type PodMember = { userId: string; displayName: string; isFacilitator: boolean }
+export type PodMember = {
+  userId: string
+  displayName: string
+  /** profiles.avatar as stored; <UserAvatar> falls back to a seeded avatar */
+  avatar: unknown
+  isFacilitator: boolean
+}
 
 /** The signed-in person's pod, or null before pods form on Nov 13 (and for leaders, who aren't in one). */
 export function useMyPod() {
@@ -54,6 +60,7 @@ export function usePodRoster() {
       return data.map((member) => ({
         userId: member.user_id,
         displayName: member.display_name,
+        avatar: member.avatar,
         isFacilitator: member.is_facilitator,
       }))
     },

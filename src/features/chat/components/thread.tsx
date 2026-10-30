@@ -19,6 +19,7 @@ export function Thread({
   day,
   me,
   authorName,
+  authorAvatar,
   canHide,
   reported,
   intro,
@@ -28,6 +29,8 @@ export function Thread({
   day: number | null
   me: string
   authorName: (authorId: string | null) => string
+  /** The small avatar beside other people's messages */
+  authorAvatar?: (authorId: string | null) => ReactNode
   canHide: boolean
   /** For the facilitator: messages with open reports, and why. */
   reported?: Map<string, ReportReason[]>
@@ -133,6 +136,7 @@ export function Thread({
             key={message.id}
             message={message}
             author={nameFor(message)}
+            avatar={message.authorId === me ? undefined : authorAvatar?.(message.authorId)}
             mine={message.authorId === me}
             now={now}
             reportedReasons={reported?.get(message.id)}

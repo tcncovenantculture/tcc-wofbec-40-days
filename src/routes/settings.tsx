@@ -25,6 +25,7 @@ export default function SettingsRoute() {
 
       <nav aria-label="More" className="overflow-hidden rounded-3xl bg-card shadow-card">
         <ul className="divide-y divide-border">
+          <RowLink to="/avatar">Change your avatar</RowLink>
           {profile.data?.role === 'moderator' ? <RowLink to="/mod">Moderation</RowLink> : null}
           <RowLink to="/privacy">How we look after your information</RowLink>
         </ul>

@@ -19,6 +19,8 @@ const SettingsRoute = lazy(() => import('@/routes/settings'))
 const ModRoute = lazy(() => import('@/routes/mod'))
 const PreviewRoute = lazy(() => import('@/routes/preview'))
 const PrivacyRoute = lazy(() => import('@/routes/privacy'))
+// DiceBear and the builder load only here and on screens that show avatars.
+const AvatarRoute = lazy(() => import('@/routes/avatar'))
 
 export function AppRoutes() {
   return (
@@ -37,6 +39,7 @@ export function AppRoutes() {
             <Route path="settings" element={<SettingsRoute />} />
           </Route>
           <Route path="day/:n" element={<DayRoute />} />
+          <Route path="avatar" element={<AvatarRoute />} />
           <Route path="mod" element={<ModRoute />} />
           <Route path="preview/:n" element={<PreviewRoute />} />
         </Route>

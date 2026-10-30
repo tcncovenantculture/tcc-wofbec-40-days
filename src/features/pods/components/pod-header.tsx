@@ -1,9 +1,9 @@
 import { CheckCircle2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { UserAvatar } from '@/features/avatar/components/user-avatar'
 import { cn } from '@/lib/utils'
 import type { MyPod, PodMember } from '../api'
-import { firstName, podNames } from '../initials'
-import { MemberAvatar } from './member-avatar'
+import { firstName, podNames } from '../names'
 
 /** Pod name, everyone's avatar, and today's total ("4 of 5 done today"): a count, never names. */
 export function PodHeader({
@@ -31,9 +31,9 @@ export function PodHeader({
           {/* The faces overlap so a pod of six still fits on one row; the names below are what's read out. */}
           <div aria-hidden="true" className="flex">
             {roster.map((member, index) => (
-              <MemberAvatar
+              <UserAvatar
                 key={member.userId}
-                name={member.displayName}
+                avatar={member.avatar}
                 userId={member.userId}
                 className={cn('ring-4 ring-card', index > 0 && '-ml-2')}
               />

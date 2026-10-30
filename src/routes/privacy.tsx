@@ -155,6 +155,20 @@ export default function PrivacyRoute() {
         </p>
       </Section>
 
+      <Section title="Credits">
+        <p>
+          Avatars are drawn on your phone with DiceBear’s Big Smile style, based on{' '}
+          <a href="https://www.figma.com/community/file/881358461963645496" className="underline">
+            “Custom Avatar”
+          </a>{' '}
+          by Ashley Seo, licensed under{' '}
+          <a href="https://creativecommons.org/licenses/by/4.0/" className="underline">
+            CC BY 4.0
+          </a>
+          .
+        </p>
+      </Section>
+
       <Section title="Contact">
         <p>
           Questions, requests or worries: <strong>{CONTACT}</strong>
