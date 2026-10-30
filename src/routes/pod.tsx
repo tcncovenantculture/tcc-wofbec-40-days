@@ -16,7 +16,9 @@ import { useProgrammeDay } from '@/features/days/use-programme'
 import { useMyPod, usePodRoster, usePodThreadCounts, usePodTotals, type MyPod } from '@/features/pods/api'
 import { NoPod } from '@/features/pods/components/no-pod'
 import { PodHeader } from '@/features/pods/components/pod-header'
+import { WhatsAppCard } from '@/features/pods/components/whatsapp-card'
 import { podKeys } from '@/features/pods/keys'
+import { whatsAppShareLink } from '@/features/pods/whatsapp'
 import { moduleFor, unlockedThrough, type ProgrammePhase } from '@/lib/programme'
 
 const tabs = ['today', 'earlier', 'general'] as const
@@ -83,6 +85,7 @@ function PodScreen({ pod }: { pod: MyPod }) {
       ) : null}
 
       <PodHeader pod={pod} roster={roster.data} me={me} totals={lessonDay ? totals.data : undefined} />
+      <WhatsAppCard pod={pod} />
       <AnnouncementCard />
 
       <Tabs value={tab} onValueChange={(value) => setParams({ tab: value })}>
@@ -166,7 +169,17 @@ function DayPrompt({ day, label }: { day: number; label: string }) {
     <section data-module={moduleFor(day)} className="space-y-2 rounded-3xl bg-card p-5 shadow-card">
       <p className="font-semibold text-module-ink">{label}</p>
       {prompt ? (
-        <p className="font-heading text-3xl leading-tight font-semibold">{prompt}</p>
+        <>
+          <p className="font-heading text-3xl leading-tight font-semibold">{prompt}</p>
+          <a
+            href={whatsAppShareLink(`Day ${day} of the 40 days: ${prompt}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex min-h-11 items-center font-semibold text-module-ink underline"
+          >
+            Share this question on WhatsApp
+          </a>
+        </>
       ) : content.isPending ? (
         <Skeleton className="h-16 rounded-xl" />
       ) : (

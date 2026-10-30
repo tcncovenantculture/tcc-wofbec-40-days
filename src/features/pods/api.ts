@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useUserId } from '@/features/auth/use-auth'
 import type { Enums } from '@/lib/database.types'
 import { supabase } from '@/lib/supabase'
@@ -82,5 +82,17 @@ export function usePodThreadCounts() {
       if (error) throw error
       return Object.fromEntries(data.map((row) => [row.day_number, row.messages]))
     },
+  })
+}
+
+/** The facilitator adds, changes or (with null) removes the pod's WhatsApp group link. */
+export function useSetWhatsAppLink() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (link: string | null) => {
+      const { error } = await supabase.rpc('set_whatsapp_link', { link: link ?? '' })
+      if (error) throw error
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: podKeys.mine }),
   })
 }

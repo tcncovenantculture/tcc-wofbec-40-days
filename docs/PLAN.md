@@ -488,11 +488,23 @@ Build notes (Oct 30):
 
 ### 2.4 WhatsApp link
 
-- [ ] Facilitator sees "Add your pod's WhatsApp group" with steps (create the group, copy the invite link,
+- [x] Facilitator sees "Add your pod's WhatsApp group" with steps (create the group, copy the invite link,
       paste it here) and a download of the pod avatar as a PNG for the group icon
-- [ ] Members see "Join the pod on WhatsApp" once a link exists, behind a notice: "Everyone in a WhatsApp
+- [x] Members see "Join the pod on WhatsApp" once a link exists, behind a notice: "Everyone in a WhatsApp
       group can see each other's phone numbers, and this app's moderation doesn't reach WhatsApp."
-- [ ] Optional: a "Share to WhatsApp" button on the pod prompt (`https://wa.me/?text=` with the prompt)
+- [x] Optional: a "Share to WhatsApp" button on the pod prompt (`https://wa.me/?text=` with the prompt)
+
+Build notes (Oct 30):
+
+- **The pod picture is drawn, not DiceBear:** the pod's first letter on a module colour picked from
+  `avatar_seed`, with the five-colour strip, as a 640px PNG (WhatsApp's icon size), colours read from the
+  theme tokens. Phase 3 chooses the DiceBear style (and checks its licence) and can swap the picture then.
+- The link box accepts WhatsApp's own share text ("Follow this link to join my WhatsApp group: …") and keeps
+  only the clean invite, dropping `?mode=…`. Anything else gets a clear message. `set_whatsapp_link` and the
+  table check enforce the same on the server. The facilitator can change or remove the link.
+- "Share this question on WhatsApp" sits under the day's question on the pod screen.
+- Checked locally with three phones: download, wrong link refused, share text accepted, members see the
+  notice before the join link, the other pod sees nothing, removing the link hides the join button.
 
 **Acceptance (walkthrough, Nov 4):** two test phones in the same seeded pod post under the Day 1 prompt and
 see each other's messages; one shares a reflection; totals update after completing the day; a third
