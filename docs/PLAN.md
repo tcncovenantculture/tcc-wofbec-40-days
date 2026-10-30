@@ -39,7 +39,9 @@ Goal: an empty but real app, themed and deployed, with local Supabase running.
 - [ ] Vercel project linked to the repo: previews use staging, production uses prod. Live on Hobby at
       https://tcc-wofbec-40-days.vercel.app; Production points at staging until `c40-prod` exists.
 - [ ] Resend account. Verify a sending domain (DNS) today, because verification can take time.
-- [ ] Domain or subdomain for the app, which the Nov 8 QR code points at
+- [ ] Domain or subdomain for the app, which the Nov 8 QR code points at. **Proposed Oct 30:**
+      `40days.tcnikeja.org` for both the app and the Resend sending domain (`mail.tcnikeja.org` is taken).
+      Steps for both items are in `docs/SETUP-TODO.md`.
 
 ### Scaffold (Claude Code)
 

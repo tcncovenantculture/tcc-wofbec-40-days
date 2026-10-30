@@ -20,27 +20,17 @@ current state and what to do next. Update it at the end of each session.
 
 ## What's left for the Nov 1 working version (mostly the user)
 
-1. **Vercel:** add `VITE_ENABLE_AS_OF=true` to Production and Preview, then redeploy the latest commit. Every
-   Vercel build is a production build, and the test clock is off in those without it. **Remove it from
-   Production before Nov 8.** Check whether pushes now deploy automatically (Hobby may block a private
-   organisation repo); if not, the user deploys by hand.
-2. **Supabase staging dashboard** (project `tccwofbec-40-staging`), Authentication:
-   - Emails → Templates: "Confirm signup" and "Magic link" both get subject `{{ .Token }} is your 40 Days
-     code` and the body from `supabase/templates/sign-in-code.html`. Without this, staging emails contain a
-     link, not a code, and sign-up can't be finished.
-   - Sign In / Providers → Email: OTP length 6, expiry 3600 seconds.
-   - URL Configuration → Site URL: `https://tcc-wofbec-40-days.vercel.app`.
-   - After the user signs up on staging: Table Editor → `profiles` → their row → `role` = `reviewer`.
-3. **Email limits:** until Resend is set up, staging uses Supabase's built-in sender: a few emails an hour,
-   and (as far as we know) only to members of the Supabase organisation. Fine for the user's own Nov 1 test;
-   **Resend is needed before the Nov 2 leaders' test.** Resend and DNS are backlogged (Oct 30) until the
-   user has the church domain's DNS access.
-4. **Acceptance test on an Android phone** (PLAN.md, end of Phase 1): sign up, open
-   `/home?asOf=2026-11-14`, do Day 1's five steps, see it complete on home, reopen Day 1 and find the answers
-   saved, check Day 8 (`/day/8?asOf=2026-11-21`), and preview days at `/preview/1`.
-5. **Real Module 1:** when it arrives, save as `content/module-1.json`, run
+1. **The user's by-hand steps are in `docs/SETUP-TODO.md`**: the Vercel env var (`VITE_ENABLE_AS_OF`), the
+   staging Auth dashboard (code template, OTP settings, Site URL), the Phase 1 phone test, the domain and
+   Resend setup, and the Nov 8 items. Keep that file current: tick or reword items when the user reports
+   progress, and add new by-hand steps there rather than here.
+2. **Resend is needed before the Nov 2 leaders' test.** Until then staging uses Supabase's built-in sender (a
+   few emails an hour). DNS for tcnikeja.org is with a church contact; the user sends one batched request.
+3. **Real Module 1:** when it arrives, save as `content/module-1.json`, run
    `pnpm media:compress content/module-1.json --target …` if it has media, then `pnpm content:load` to local
    and staging. It replaces the sample days by day number.
+4. **Phase 2 started Oct 30, before the Phase 1 phone test**, at the user's request (the test waits on their
+   dashboard steps). If the phone test turns up Phase 1 bugs, fix them first.
 
 ## Next: Phase 2 (pods and chat, Nov 1 to Nov 4)
 
@@ -56,7 +46,7 @@ day's pod card are where "Share with my pod" goes. Seed: two pods of five with a
 | Supabase staging | **`tccwofbec-40-staging`**, London `eu-west-2`, free org. Linked. Migrations: `pnpm exec supabase db push --linked`, with `SUPABASE_DB_PASSWORD` read from `.env.staging` in the shell without printing it. |
 | `.env.staging` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (an `sb_secret_` key), `SUPABASE_DB_PASSWORD` filled; `RESEND_API_KEY` empty. Gitignored. |
 | Vercel | **Hobby**, project `tcc-wofbec-40-days`. Production and Preview env vars point at staging (switch Production to prod before Nov 8). Hobby doesn't support private organisation repos: if automatic deploys get blocked, the user deploys by hand from the dashboard (their call; don't add a CI deploy workaround). |
-| Resend | Not set up; backlogged. Use a domain the church already owns (`mail.<domain>` for sending, region `eu-west-1`; app at e.g. `40days.<domain>` via a Vercel CNAME). Unknown: the domain, who manages DNS, the sender address. |
+| Resend | Not set up. Church domain **tcnikeja.org** (DNS at Namecheap, run by a church contact). Proposed, not yet agreed: **`40days.tcnikeja.org`** for both the app (Vercel CNAME) and the Resend sending domain (region `eu-west-1`), sender `hello@40days.tcnikeja.org`, name "Covenant Culture 40 Days". `mail.` and the root are taken by another church team's Resend. Steps and DNS findings in `docs/SETUP-TODO.md`. |
 | Supabase prod | Later (by Nov 4, Phase 3): a **separate org on the Pro plan** so staging stays free (Supabase bills per org). Project `c40-prod`, same region. |
 | Resend Pro | Before Nov 8 sign-ups. The free plan allows 100 emails a day and 3,000 a month. |
 
@@ -174,7 +164,8 @@ day's pod card are where "Share with my pod" goes. Seed: two pods of five with a
 
 ## Open questions for the user
 
-- The church domain to use, who manages its DNS, and the sender address for sign-in codes
+- Agree the proposed names (`40days.tcnikeja.org`, `hello@40days.tcnikeja.org`) and a church inbox for
+  replies; the welcome and reminder emails in Phase 4 use it as reply-to
 - Original logo file (SVG or 1024px+ PNG)
 - From the plan: moderator names (by Nov 7), whether reports also go to moderators, baseline question
   wording (by Nov 5), data retention period
