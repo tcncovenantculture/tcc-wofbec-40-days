@@ -597,18 +597,36 @@ a throttled "Slow 3G" profile, with no app install.
 
 ### 4.1 Reports and moderation
 
-- [ ] `reports (id, message_id, reporter_id, reason text, status 'open'|'actioned'|'dismissed',
+- [x] `reports (id, message_id, reporter_id, reason text, status 'open'|'actioned'|'dismissed',
       handled_by, handled_at, created_at)`. Reporters insert; moderators select and update.
-- [ ] Report sheet: reason chips (unkind, unsafe, spam, something else) plus optional text; confirmation copy
+- [x] Report sheet: reason chips (unkind, unsafe, spam, something else) plus optional text; confirmation copy
       tells the reporter a church leader will see it
 - [ ] Database webhook on `reports` insert → edge function `notify-report` → email to every moderator
       through Resend, with the message, pod and a link to `/mod`
-- [ ] Facilitator gets an in-app badge on reports from their pod, which satisfies the brief's "escalation
+- [x] Facilitator gets an in-app badge on reports from their pod, which satisfies the brief's "escalation
       path to facilitators". **Confirm with the project lead** that reports also going to church moderators
       is wanted. It's recommended because facilitators are randomly picked peers.
-- [ ] `/mod` (moderators only): open reports, newest first; view message in context; hide or dismiss;
+- [x] `/mod` (moderators only): open reports, newest first; view message in context; hide or dismiss;
       post an announcement to all pods
 - [ ] Moderators set by hand in Studio. List of names still needed from the project lead.
+
+Build notes (Oct 30, built ahead of Phase 3's remaining tasks so it exists before Nov 8):
+
+- **Schema:** `reason` is an enum of the four chips, and the optional words go in a separate `details`
+  column (up to 1,000 characters). One report per person per message; a repeat gets "You've already
+  reported this message". `notified_at` is for the email function.
+- **Nobody reads `reports` directly.** Reporters can only insert (for messages they can see). Moderators work
+  through `moderation_queue()` (one row per reported message, real body even if hidden),
+  `moderation_context(id)` (three messages either side) and `resolve_reports(id, 'hide'|'dismiss')`, which
+  closes every open report on that message. The facilitator gets `pod_reported_messages()`: message, thread
+  and reasons, never the reporter or their words. 27 pgTAP tests.
+- The facilitator sees a notice under the pod header with links to the threads, and the message is marked
+  "Reported: …" with a red outline. It drops off once the message is hidden.
+- `/mod` is linked from Settings for moderators only; anyone else gets "This page is for church
+  moderators". Already-hidden messages offer "Keep hidden" (there's no un-hide). Announcements need a second
+  tap to post, and recent ones can be hidden.
+- The reporter's name isn't shown on `/mod` (the plan doesn't ask for it), though it's recorded. If the
+  church wants it for safeguarding follow-up, it's a small change.
 
 ### 4.2 Pod formation (`scripts/form-pods.ts`)
 

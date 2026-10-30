@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { RouteStub } from '@/components/route-stub'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Field, FieldContent, FieldDescription, FieldLabel } from '@/components/ui/field'
-import { useSignOut } from '@/features/auth/api'
+import { useProfile, useSignOut } from '@/features/auth/api'
 import { authErrorMessage } from '@/features/auth/errors'
 import { useLocalSettings } from '@/features/settings/use-local-settings'
 
@@ -12,6 +12,7 @@ import { useLocalSettings } from '@/features/settings/use-local-settings'
 // sign out (for testing several accounts on one phone).
 export default function SettingsRoute() {
   const signOut = useSignOut()
+  const profile = useProfile()
   const navigate = useNavigate()
   const { textOnly, setTextOnly } = useLocalSettings()
 
@@ -35,6 +36,12 @@ export default function SettingsRoute() {
             </FieldDescription>
           </FieldContent>
         </Field>
+
+        {profile.data?.role === 'moderator' ? (
+          <Button asChild variant="outline" className="w-full">
+            <Link to="/mod">Moderation</Link>
+          </Button>
+        ) : null}
 
         <Button
           variant="outline"

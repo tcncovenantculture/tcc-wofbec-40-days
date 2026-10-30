@@ -1,6 +1,7 @@
-import { MoreHorizontal, Pin, Quote, type LucideIcon } from 'lucide-react'
+import { Flag, MoreHorizontal, Pin, Quote, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
+import { reasonLabel, type ReportReason } from '@/features/moderation/api'
 import { cn } from '@/lib/utils'
 import type { Message, MessageKind, PendingMessage } from '../api'
 import { formatMessageTime } from '../format'
@@ -40,12 +41,15 @@ export function MessageItem({
   author,
   mine,
   now,
+  reportedReasons,
   onOptions,
 }: {
   message: Message
   author: string
   mine: boolean
   now: Date
+  /** Shown to the facilitator when the message has open reports. */
+  reportedReasons?: ReportReason[]
   onOptions?: () => void
 }) {
   return (
@@ -54,9 +58,16 @@ export function MessageItem({
         className={cn(
           'relative w-fit max-w-[85%] min-w-40 space-y-1 rounded-2xl px-4 py-3 shadow-card',
           mine ? 'bg-orange/10' : 'bg-card',
+          reportedReasons && 'ring-2 ring-destructive',
           onOptions && 'pr-12',
         )}
       >
+        {reportedReasons ? (
+          <p className="flex items-center gap-1.5 font-semibold text-destructive">
+            <Flag aria-hidden="true" className="size-4" />
+            Reported: {reportedReasons.map(reasonLabel).join(', ')}
+          </p>
+        ) : null}
         <header className="flex flex-wrap items-baseline gap-x-2">
           <span className="font-semibold">{author}</span>
           <time dateTime={message.createdAt} className="text-ink-soft">

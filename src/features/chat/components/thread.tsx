@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useNow } from '@/features/days/use-programme'
+import type { ReportReason } from '@/features/moderation/api'
 import { usePendingMessages, usePinned, useThread, type Message } from '../api'
 import { MessageActions } from './message-actions'
 import { MessageItem, PendingItem } from './message-item'
@@ -19,6 +20,7 @@ export function Thread({
   me,
   authorName,
   canHide,
+  reported,
   intro,
   empty,
 }: {
@@ -27,6 +29,8 @@ export function Thread({
   me: string
   authorName: (authorId: string | null) => string
   canHide: boolean
+  /** For the facilitator: messages with open reports, and why. */
+  reported?: Map<string, ReportReason[]>
   intro?: ReactNode
   empty: string
 }) {
@@ -131,6 +135,7 @@ export function Thread({
             author={nameFor(message)}
             mine={message.authorId === me}
             now={now}
+            reportedReasons={reported?.get(message.id)}
             onOptions={optionsFor(message)}
           />
         ))}
@@ -148,7 +153,12 @@ export function Thread({
         <p className="py-2 text-center text-ink-soft">{empty}</p>
       ) : null}
 
-      <MessageActions message={options} canHide={canHide} onClose={() => setOptions(null)} />
+      <MessageActions
+        message={options}
+        canHide={canHide}
+        canReport={options !== null && options.authorId !== me}
+        onClose={() => setOptions(null)}
+      />
     </section>
   )
 }

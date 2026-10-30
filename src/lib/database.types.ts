@@ -335,6 +335,75 @@ export type Database = {
           },
         ]
       }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          message_id: string
+          notified_at: string | null
+          reason: Database['public']['Enums']['report_reason']
+          reporter_id: string | null
+          status: Database['public']['Enums']['report_status']
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          details?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          message_id: string
+          notified_at?: string | null
+          reason: Database['public']['Enums']['report_reason']
+          reporter_id?: string | null
+          status?: Database['public']['Enums']['report_status']
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          message_id?: string
+          notified_at?: string | null
+          reason?: Database['public']['Enums']['report_reason']
+          reporter_id?: string | null
+          status?: Database['public']['Enums']['report_status']
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reports_handled_by_fkey'
+            columns: ['handled_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_message_id_fkey'
+            columns: ['message_id']
+            isOneToOne: false
+            referencedRelation: 'messages'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_message_id_fkey'
+            columns: ['message_id']
+            isOneToOne: false
+            referencedRelation: 'pod_messages'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_reporter_id_fkey'
+            columns: ['reporter_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       pod_messages: {
@@ -400,6 +469,32 @@ export type Database = {
       is_pod_member: { Args: { pod: string }; Returns: boolean }
       is_role: { Args: { r: Database['public']['Enums']['user_role'] }; Returns: boolean }
       message_body: { Args: { message_id: string }; Returns: string }
+      moderation_context: {
+        Args: { message_id: string }
+        Returns: {
+          author_name: string
+          body: string
+          created_at: string
+          hidden: boolean
+          id: string
+        }[]
+      }
+      moderation_queue: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author_name: string
+          body: string
+          day_number: number
+          details: string[]
+          hidden: boolean
+          last_reported_at: string
+          message_id: string
+          pod_name: string
+          reasons: Database['public']['Enums']['report_reason'][]
+          reports: number
+          sent_at: string
+        }[]
+      }
       moderator_display_names: {
         Args: { user_ids: string[] }
         Returns: {
@@ -408,6 +503,14 @@ export type Database = {
         }[]
       }
       my_pod_id: { Args: Record<PropertyKey, never>; Returns: string }
+      pod_reported_messages: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          day_number: number
+          message_id: string
+          reasons: Database['public']['Enums']['report_reason'][]
+        }[]
+      }
       pod_roster: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -431,12 +534,15 @@ export type Database = {
           members: number
         }[]
       }
+      resolve_reports: { Args: { message_id: string; outcome: string }; Returns: undefined }
       set_whatsapp_link: { Args: { link: string }; Returns: undefined }
     }
     Enums: {
       day_kind: 'intro' | 'developmental' | 'synthesis'
       dimension: 'career' | 'character' | 'community'
       message_kind: 'message' | 'shared_reflection' | 'pinned' | 'announcement'
+      report_reason: 'unkind' | 'unsafe' | 'spam' | 'other'
+      report_status: 'open' | 'actioned' | 'dismissed'
       segment: 'undergrad' | 'early_career' | 'experienced_professional' | 'entrepreneur'
       user_role: 'participant' | 'moderator' | 'reviewer'
     }
@@ -555,6 +661,8 @@ export const Constants = {
       day_kind: ['intro', 'developmental', 'synthesis'],
       dimension: ['career', 'character', 'community'],
       message_kind: ['message', 'shared_reflection', 'pinned', 'announcement'],
+      report_reason: ['unkind', 'unsafe', 'spam', 'other'],
+      report_status: ['open', 'actioned', 'dismissed'],
       segment: ['undergrad', 'early_career', 'experienced_professional', 'entrepreneur'],
       user_role: ['participant', 'moderator', 'reviewer'],
     },

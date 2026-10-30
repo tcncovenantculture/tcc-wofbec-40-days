@@ -13,7 +13,9 @@ import { usePodLive } from '@/features/chat/use-pod-live'
 import { usePullToRefresh } from '@/features/chat/use-pull-to-refresh'
 import { useDay, useDaySummaries } from '@/features/days/api'
 import { useProgrammeDay } from '@/features/days/use-programme'
+import { usePodReportedMessages } from '@/features/moderation/api'
 import { useMyPod, usePodRoster, usePodThreadCounts, usePodTotals, type MyPod } from '@/features/pods/api'
+import { ReportedNotice } from '@/features/pods/components/reported-notice'
 import { NoPod } from '@/features/pods/components/no-pod'
 import { PodHeader } from '@/features/pods/components/pod-header'
 import { WhatsAppCard } from '@/features/pods/components/whatsapp-card'
@@ -38,6 +40,7 @@ function PodScreen({ pod }: { pod: MyPod }) {
   const roster = usePodRoster()
   const lessonDay = today.phase === 'lesson' ? today.day : null
   const totals = usePodTotals(lessonDay)
+  const reportedMessages = usePodReportedMessages(pod.isFacilitator)
   const [params, setParams] = useSearchParams()
   const queryClient = useQueryClient()
 
@@ -64,7 +67,8 @@ function PodScreen({ pod }: { pod: MyPod }) {
   const names = new Map(roster.data?.map((member) => [member.userId, member.displayName]))
   const authorName = (authorId: string | null) =>
     (authorId ? names.get(authorId) : undefined) ?? (roster.isPending ? '…' : 'Former member')
-  const threadProps = { podId: pod.id, me, authorName, canHide: pod.isFacilitator }
+  const reported = new Map(reportedMessages.data?.map((r) => [r.messageId, r.reasons]))
+  const threadProps = { podId: pod.id, me, authorName, canHide: pod.isFacilitator, reported }
 
   return (
     <main
@@ -85,6 +89,7 @@ function PodScreen({ pod }: { pod: MyPod }) {
       ) : null}
 
       <PodHeader pod={pod} roster={roster.data} me={me} totals={lessonDay ? totals.data : undefined} />
+      <ReportedNotice reported={reportedMessages.data ?? []} lessonDay={lessonDay} />
       <WhatsAppCard pod={pod} />
       <AnnouncementCard />
 
