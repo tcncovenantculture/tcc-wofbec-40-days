@@ -244,6 +244,18 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Sign-in uses 6-digit codes, never links. New users get the confirmation email (or the magic link one
+# when confirmations are off, as they are locally); returning users get the magic link email. Both send
+# the same code-only template. Staging and prod need the same subject and body pasted into the dashboard
+# (Authentication > Emails) for "Confirm signup" and "Magic link".
+[auth.email.template.confirmation]
+subject = "{{ .Token }} is your 40 Days code"
+content_path = "./supabase/templates/sign-in-code.html"
+
+[auth.email.template.magic_link]
+subject = "{{ .Token }} is your 40 Days code"
+content_path = "./supabase/templates/sign-in-code.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

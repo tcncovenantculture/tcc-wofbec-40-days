@@ -4,31 +4,40 @@ import DayRoute from '@/routes/day'
 import HomeRoute from '@/routes/home'
 import LandingRoute from '@/routes/landing'
 import NotFoundRoute from '@/routes/not-found'
-import SignupRoute from '@/routes/signup'
-import VerifyRoute from '@/routes/verify'
+import { RedirectIfSignedIn, RequireSignedIn } from './guards'
 import { AppLayout } from './layout'
 
-// Route-split: screens that aren't on the first-visit path load on demand.
+// Route-split: screens that aren't on the first-visit path load on demand. Sign-up and verify carry the
+// form libraries (react-hook-form, zod), so they stay out of the first load too.
+const SignupRoute = lazy(() => import('@/routes/signup'))
+const VerifyRoute = lazy(() => import('@/routes/verify'))
 const JourneyRoute = lazy(() => import('@/routes/journey'))
 const PodRoute = lazy(() => import('@/routes/pod'))
 const SettingsRoute = lazy(() => import('@/routes/settings'))
 const ModRoute = lazy(() => import('@/routes/mod'))
 const PreviewRoute = lazy(() => import('@/routes/preview'))
+const PrivacyRoute = lazy(() => import('@/routes/privacy'))
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<LandingRoute />} />
-        <Route path="signup" element={<SignupRoute />} />
-        <Route path="verify" element={<VerifyRoute />} />
-        <Route path="home" element={<HomeRoute />} />
-        <Route path="day/:n" element={<DayRoute />} />
-        <Route path="journey" element={<JourneyRoute />} />
-        <Route path="pod" element={<PodRoute />} />
-        <Route path="settings" element={<SettingsRoute />} />
-        <Route path="mod" element={<ModRoute />} />
-        <Route path="preview/:n" element={<PreviewRoute />} />
+        <Route element={<RedirectIfSignedIn />}>
+          <Route index element={<LandingRoute />} />
+          <Route path="signup" element={<SignupRoute />} />
+          <Route path="verify" element={<VerifyRoute />} />
+        </Route>
+        <Route element={<RequireSignedIn />}>
+          <Route path="home" element={<HomeRoute />} />
+          <Route path="day/:n" element={<DayRoute />} />
+          <Route path="journey" element={<JourneyRoute />} />
+          <Route path="pod" element={<PodRoute />} />
+          <Route path="settings" element={<SettingsRoute />} />
+          <Route path="mod" element={<ModRoute />} />
+          <Route path="preview/:n" element={<PreviewRoute />} />
+        </Route>
+        {/* Open to everyone, signed in or not */}
+        <Route path="privacy" element={<PrivacyRoute />} />
         <Route path="*" element={<NotFoundRoute />} />
       </Route>
     </Routes>

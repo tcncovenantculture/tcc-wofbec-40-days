@@ -221,14 +221,34 @@ Use 6-digit **codes**, not magic links. On iPhone, a magic link opens Safari ins
 which breaks the session; a code works everywhere and is lighter on weak data.
 
 - [ ] Supabase Auth: email provider on, OTP length 6, expiry 1 hour. Email template contains `{{ .Token }}`.
+      Done locally (`config.toml`, `supabase/templates/sign-in-code.html` for both "Confirm signup" and
+      "Magic link"). Staging still needs the same settings and template in the dashboard.
 - [ ] Custom SMTP set to Resend on staging and prod. The built-in sender is rate-limited and only for testing.
-- [ ] `/signup`: name, segment (four large radio cards), email, WhatsApp number (optional), privacy
+      **Backlogged Oct 30:** waiting on the church domain's DNS.
+- [x] `/signup`: name, segment (four large radio cards), email, WhatsApp number (optional), privacy
       acknowledgement (required), reminder consent (unticked by default). Calls `signInWithOtp` with
       `options.data` carrying the profile fields and `shouldCreateUser: true`.
-- [ ] `/verify`: 6-digit input, `verifyOtp({ email, token, type: 'email' })`, resend after 60s, clear errors
-- [ ] Returning users: "Sign in" reuses the same email-to-code flow
-- [ ] Route guard: signed-out users go to `/`; signed-in users skip the landing and signup screens
-- [ ] Locally, codes arrive in Mailpit (`supabase start` prints its URL)
+- [x] `/verify`: 6-digit input, `verifyOtp({ email, token, type: 'email' })`, resend after 60s, clear errors
+- [x] Returning users: "Sign in" reuses the same email-to-code flow (`/signup?mode=signin`)
+- [x] Route guard: signed-out users go to `/`; signed-in users skip the landing and signup screens
+- [x] Locally, codes arrive in Mailpit (`supabase start` prints its URL)
+
+Build notes (Oct 30):
+
+- The profile is created when the code is *sent*, not when it's verified (Supabase creates the user then).
+  `pods:form` (Phase 4) must only pick people whose email is confirmed (`auth.users.email_confirmed_at`).
+- WhatsApp numbers are normalised to E.164 in the form; an 11-digit number starting with 0 is read as
+  Nigerian. The database rejects anything that isn't E.164.
+- The privacy tick is required by the form but not stored. If the NDPA review wants a consent record,
+  add a `privacy_accepted_at` column in Phase 3.
+- Sign out sits on the Settings placeholder for now, for testing several accounts on one phone.
+- `/privacy` is a placeholder until Phase 3, so the sign-up form's link has somewhere to go.
+- Signing out, or a different person signing in, clears the TanStack Query cache, so a shared phone never
+  shows the previous person's data.
+- Checkbox and radio borders use `muted-foreground`, because `border` on cream is too faint to see (non-text
+  contrast needs 3:1).
+- The Supabase client is now in the first-load bundle (through the session provider). Phase 3's lean
+  landing page will need to keep it off the landing route.
 
 ### 1.4 Content format and loader
 
