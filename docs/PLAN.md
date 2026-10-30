@@ -177,16 +177,30 @@ reflections (id uuid pk, user_id uuid references profiles, day_number int refere
 ```
 
 - [x] Migrations for the above, plus an `updated_at` trigger
-- [ ] Helper `is_role(r user_role)`: `security definer`, `search_path = public`
-- [ ] RLS `profiles`: select and update own row. Users can't change `role` (column-level grant or trigger).
+- [x] Helper `is_role(r user_role)`: `security definer`, `search_path = public`
+- [x] RLS `profiles`: select and update own row. Users can't change `role` (column-level grant or trigger).
       Moderators can read `display_name` of anyone (needed for reports).
-- [ ] RLS `days`: select where `status = 'published' and publish_at <= now()`, or `is_role('reviewer')`,
+- [x] RLS `days`: select where `status = 'published' and publish_at <= now()`, or `is_role('reviewer')`,
       or `is_role('moderator')`. No client insert, update or delete.
-- [ ] RLS `progress` and `reflections`: own rows only, for every operation
+- [x] RLS `progress` and `reflections`: own rows only, for every operation
 - [ ] Trigger: create the `profiles` row from `auth.users` metadata on sign-up
 - [ ] pgTAP tests: a participant can't read a future day; can't read another user's reflections; can't set
       their own role. A reviewer can read a draft day.
 - [ ] `pnpm db:types`
+
+Build notes (Oct 30):
+
+- Every migration that adds a table starts from `revoke all ... from anon, authenticated` and grants back
+  only what the app uses, because Supabase grants every privilege on new public tables by default.
+- Security definer functions use `set search_path = ''` with schema-qualified names (stricter than
+  `public`, and what Supabase's linter expects).
+- Profile edits are a column-level grant: `display_name`, `whatsapp_number`, `avatar`, `reminder_email`.
+  Role, email, segment (pods are formed by segment) and the unsubscribe token can't be changed from the app.
+- Moderators get display names through `moderator_display_names(uuid[])`, not a wider profiles policy, so
+  they never see emails or phone numbers.
+- Progress and reflections can only be written for days the person can see, so nobody completes or
+  answers a day before it unlocks. Staging therefore needs content loaded with past `publish_at` values
+  for `?asOf` testing (see 1.4).
 
 ### 1.2 Programme clock (`src/lib/programme.ts`)
 
