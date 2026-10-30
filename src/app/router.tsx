@@ -6,6 +6,7 @@ import LandingRoute from '@/routes/landing'
 import NotFoundRoute from '@/routes/not-found'
 import { RedirectIfSignedIn, RequireSignedIn } from './guards'
 import { AppLayout } from './layout'
+import { SignedInLayout } from './signed-in-layout'
 
 // Route-split: screens that aren't on the first-visit path load on demand. Sign-up and verify carry the
 // form libraries (react-hook-form, zod), so they stay out of the first load too.
@@ -28,11 +29,13 @@ export function AppRoutes() {
           <Route path="verify" element={<VerifyRoute />} />
         </Route>
         <Route element={<RequireSignedIn />}>
-          <Route path="home" element={<HomeRoute />} />
+          <Route element={<SignedInLayout />}>
+            <Route path="home" element={<HomeRoute />} />
+            <Route path="journey" element={<JourneyRoute />} />
+            <Route path="pod" element={<PodRoute />} />
+            <Route path="settings" element={<SettingsRoute />} />
+          </Route>
           <Route path="day/:n" element={<DayRoute />} />
-          <Route path="journey" element={<JourneyRoute />} />
-          <Route path="pod" element={<PodRoute />} />
-          <Route path="settings" element={<SettingsRoute />} />
           <Route path="mod" element={<ModRoute />} />
           <Route path="preview/:n" element={<PreviewRoute />} />
         </Route>

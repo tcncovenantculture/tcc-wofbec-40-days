@@ -10,8 +10,12 @@ if (!url || !anonKey) {
   throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Copy .env.example to .env.local.')
 }
 
+/** Where supabase-js keeps the session in localStorage. Fixed so the auth provider can read it offline. */
+export const AUTH_STORAGE_KEY = 'c40.auth'
+
 export const supabase = createClient<Database>(url, anonKey, {
   auth: {
+    storageKey: AUTH_STORAGE_KEY,
     persistSession: true,
     autoRefreshToken: true,
     // Sign-in uses 6-digit codes, not magic links, so there's never a session in the URL.

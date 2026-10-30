@@ -5,16 +5,15 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { useSendCode, useVerifyCode } from '@/features/auth/api'
+import { authErrorMessage } from '@/features/auth/errors'
 import {
   clearPendingCode,
   pendingFromState,
   readPendingCode,
   savePendingCode,
-  useSendCode,
-  useVerifyCode,
   type PendingCode,
-} from '@/features/auth/api'
-import { authErrorMessage } from '@/features/auth/errors'
+} from '@/features/auth/pending-code'
 
 const RESEND_AFTER_SECONDS = 60
 const CODE_LENGTH = 6

@@ -1,5 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { asOfOverride, moduleFor, parseAsOf, programmeDay, publishAtFor } from './programme'
+import {
+  asOfOverride,
+  daysUntilDayOne,
+  formatInLagos,
+  moduleFor,
+  parseAsOf,
+  programmeDay,
+  publishAtFor,
+} from './programme'
 
 // Inputs are UTC instants. Lagos is UTC+1 all year, so Lagos midnight is 23:00 UTC the evening before.
 const at = (iso: string) => new Date(iso)
@@ -65,6 +73,28 @@ describe('publishAtFor', () => {
 
   it.each([0, 51, 1.5, Number.NaN])('rejects %s', (day) => {
     expect(() => publishAtFor(day)).toThrow(RangeError)
+  })
+})
+
+describe('daysUntilDayOne', () => {
+  it.each([
+    ['Oct 30', '2026-10-30T10:00:00Z', 15],
+    ['00:00 Nov 13, Lagos', '2026-11-12T23:00:00Z', 1],
+    ['23:59 Nov 13, Lagos', '2026-11-13T22:59:00Z', 1],
+    ['00:00 Nov 14, Lagos (Day 1)', '2026-11-13T23:00:00Z', 0],
+    ['Nov 15', '2026-11-15T10:00:00Z', -1],
+  ])('%s → %i', (_label, iso, expected) => {
+    // + 0 turns a -0 from date-fns into 0
+    expect(daysUntilDayOne(new Date(iso)) + 0).toBe(expected)
+  })
+})
+
+describe('formatInLagos', () => {
+  it('formats in Lagos time, not the machine timezone', () => {
+    // 23:30 UTC on Nov 13 is already Saturday Nov 14 in Lagos.
+    const lateNov13Utc = new Date('2026-11-13T23:30:00Z')
+    expect(formatInLagos(lateNov13Utc)).toBe('Saturday 14 November')
+    expect(formatInLagos(lateNov13Utc, { hour: '2-digit', minute: '2-digit' })).toBe('00:30')
   })
 })
 

@@ -1,5 +1,5 @@
 import { TZDate, tz } from '@date-fns/tz'
-import { addDays, differenceInCalendarDays, isValid, parse } from 'date-fns'
+import { addDays, differenceInCalendarDays } from 'date-fns'
 
 // Every "today" calculation in the app goes through this file. All dates are Africa/Lagos time.
 
@@ -43,6 +43,22 @@ export function publishAtFor(day: number): Date {
   return new Date(addDays(DAY_ONE, day - 1, { in: inLagos }).getTime())
 }
 
+/**
+ * Formats a date in Lagos time with the browser's Intl (no date-fns format: it would add a locale and
+ * formatter bundle to the first load). formatInLagos(d) → "Saturday 14 November".
+ */
+export function formatInLagos(
+  date: Date,
+  options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' },
+): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TIME_ZONE, ...options }).format(date)
+}
+
+/** Whole calendar days (Lagos) from `now` until Day 1: 0 on Nov 13, negative once it has started. */
+export function daysUntilDayOne(now: Date): number {
+  return differenceInCalendarDays(DAY_ONE, now, { in: inLagos })
+}
+
 // Test clock --------------------------------------------------------------------------------------------
 // `?asOf=2026-11-20` pretends it's midday in Lagos on that date. It sticks for the rest of the browser tab
 // session, so links inside the app keep it; `?asOf=off` clears it. Only in non-production builds, or when
@@ -58,9 +74,13 @@ export const asOfEnabled =
 
 /** Parses a YYYY-MM-DD test date as midday Lagos time, or returns null if it isn't a real date. */
 export function parseAsOf(value: string | null | undefined): Date | null {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
-  const date = parse(`${value} 12:00`, 'yyyy-MM-dd HH:mm', new TZDate(0, TIME_ZONE), { in: inLagos })
-  return isValid(date) ? new Date(date.getTime()) : null
+  const match = value ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(value) : null
+  if (!match) return null
+  const [year, month, day] = [Number(match[1]), Number(match[2]) - 1, Number(match[3])]
+  const date = new TZDate(year, month, day, 12, 0, TIME_ZONE)
+  // A date like 2026-11-31 rolls over to Dec 1: reject it rather than guess.
+  if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) return null
+  return new Date(date.getTime())
 }
 
 function readStoredAsOf(): string | null {

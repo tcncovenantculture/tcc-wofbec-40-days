@@ -18,8 +18,9 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { savePendingCode, useSendCode, type AuthMode } from '@/features/auth/api'
+import { useSendCode, type AuthMode } from '@/features/auth/api'
 import { authErrorMessage } from '@/features/auth/errors'
+import { savePendingCode } from '@/features/auth/pending-code'
 import {
   segmentOptions,
   signinSchema,

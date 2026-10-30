@@ -274,12 +274,26 @@ The content file format is in `content/module-1.template.json`. One file per cur
 
 ### 1.5 Home (`/home`)
 
-- [ ] `before`: welcome card, countdown to Day 1, "Your pod forms on Nov 13"
-- [ ] `lesson`: today's card (module accent, day number, title, estimated minutes, Continue button); personal
+- [x] `before`: welcome card, countdown to Day 1, "Your pod forms on Nov 13"
+- [x] `lesson`: today's card (module accent, day number, title, estimated minutes, Continue button); personal
       progress "Day 12 of 40" as a 40-dot strip grouped into five modules; a "Catch up" list of unlocked,
       uncompleted days, worded neutrally ("Ready when you are")
-- [ ] `waiting`: a card that points to the pod chat (Phase 6 polishes it)
-- [ ] Skeletons while loading. Works from cache when offline: the shell plus the last fetched day.
+- [x] `waiting`: a card that points to the pod chat (Phase 6 polishes it). Day 50 onwards shows a short
+      "WOFBEC has begun" version until Phase 6.
+- [x] Skeletons while loading. Works from cache when offline: the shell plus the last fetched day.
+
+Build notes (Oct 30):
+
+- Home, journey, pod and settings share a bottom nav (Today, Journey, Pod, Settings), because nothing
+  else links to journey or settings. The day screen leaves it out.
+- Offline: TanStack Query's cache is saved to localStorage (`days`, `progress`, `profile` only; never
+  reflections) for 7 days, and cleared on sign-out. If the access token expired while offline, the auth
+  provider uses the saved session instead of signing the person out; supabase-js refreshes it when the
+  signal returns. The session is stored under `c40.auth`.
+- Dates are displayed with `Intl.DateTimeFormat` (Lagos time zone) and `?asOf` is parsed by hand, because
+  date-fns `format` and `parse` added about 9 KB gzipped to the first load. date-fns still does the date
+  maths. First load is now 180 KB gzipped.
+- Progress is cached as an array (it's saved as JSON) and turned into a Set for screens.
 
 ### 1.6 Daily screen (`/day/:n`)
 
