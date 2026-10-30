@@ -32,9 +32,12 @@ export function LessonDay({
   const [params, setParams] = useSearchParams()
   const found = steps.findIndex((step) => step.id === params.get('step'))
   const active = found === -1 ? 0 : found
-  const firstRender = useRef(true)
+  // Set when someone taps to another step, so only that brings the step into view (never the first load,
+  // where the title should show, and never twice under StrictMode).
+  const scrollTo = useRef<number | null>(null)
 
   const go = (index: number) => {
+    scrollTo.current = index
     setParams((current) => {
       const next = new URLSearchParams(current)
       next.set('step', steps[index]?.id ?? 'encounter')
@@ -43,11 +46,8 @@ export function LessonDay({
   }
 
   useEffect(() => {
-    // Bring the opened step into view, but not on first load (the title should be visible then).
-    if (firstRender.current) {
-      firstRender.current = false
-      return
-    }
+    if (scrollTo.current !== active) return
+    scrollTo.current = null
     document.getElementById(`step-${steps[active]?.id}`)?.scrollIntoView({ block: 'start' })
   }, [active])
 
