@@ -23,16 +23,206 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      days: {
+        Row: {
+          action_dimension: Database['public']['Enums']['dimension']
+          body_md: string
+          day_number: number
+          est_minutes: number
+          introduction: string
+          kind: Database['public']['Enums']['day_kind']
+          media: NonNullable<Json>
+          module_number: number
+          pod_prompt: string
+          practical_action: string
+          publish_at: string
+          reflection_prompts: string[]
+          scripture_ref: string
+          scripture_text: string | null
+          scripture_url: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          action_dimension: Database['public']['Enums']['dimension']
+          body_md: string
+          day_number: number
+          est_minutes: number
+          introduction: string
+          kind: Database['public']['Enums']['day_kind']
+          media?: NonNullable<Json>
+          module_number: number
+          pod_prompt: string
+          practical_action: string
+          publish_at: string
+          reflection_prompts: string[]
+          scripture_ref: string
+          scripture_text?: string | null
+          scripture_url?: string | null
+          status: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_dimension?: Database['public']['Enums']['dimension']
+          body_md?: string
+          day_number?: number
+          est_minutes?: number
+          introduction?: string
+          kind?: Database['public']['Enums']['day_kind']
+          media?: NonNullable<Json>
+          module_number?: number
+          pod_prompt?: string
+          practical_action?: string
+          publish_at?: string
+          reflection_prompts?: string[]
+          scripture_ref?: string
+          scripture_text?: string | null
+          scripture_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar: Json | null
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          reminder_email: boolean
+          role: Database['public']['Enums']['user_role']
+          segment: Database['public']['Enums']['segment']
+          unsubscribe_token: string
+          whatsapp_number: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          avatar?: Json | null
+          created_at?: string
+          display_name: string
+          email: string
+          id: string
+          reminder_email?: boolean
+          role?: Database['public']['Enums']['user_role']
+          segment: Database['public']['Enums']['segment']
+          unsubscribe_token?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          avatar?: Json | null
+          created_at?: string
+          display_name?: string
+          email?: string
+          id?: string
+          reminder_email?: boolean
+          role?: Database['public']['Enums']['user_role']
+          segment?: Database['public']['Enums']['segment']
+          unsubscribe_token?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      progress: {
+        Row: {
+          completed_at: string
+          day_number: number
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          completed_at?: string
+          day_number: number
+          user_id?: string
+        }
+        Update: {
+          completed_at?: string
+          day_number?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'progress_day_number_fkey'
+            columns: ['day_number']
+            isOneToOne: false
+            referencedRelation: 'days'
+            referencedColumns: ['day_number']
+          },
+          {
+            foreignKeyName: 'progress_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      reflections: {
+        Row: {
+          body: string
+          day_number: number
+          id: string
+          prompt_index: number
+          updated_at: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          body: string
+          day_number: number
+          id?: string
+          prompt_index: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          day_number?: number
+          id?: string
+          prompt_index?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reflections_day_number_fkey'
+            columns: ['day_number']
+            isOneToOne: false
+            referencedRelation: 'days'
+            referencedColumns: ['day_number']
+          },
+          {
+            foreignKeyName: 'reflections_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_role: { Args: { r: Database['public']['Enums']['user_role'] }; Returns: boolean }
+      moderator_display_names: {
+        Args: { user_ids: string[] }
+        Returns: {
+          display_name: string
+          id: string
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      day_kind: 'intro' | 'developmental' | 'synthesis'
+      dimension: 'career' | 'character' | 'community'
+      segment: 'undergrad' | 'early_career' | 'experienced_professional' | 'entrepreneur'
+      user_role: 'participant' | 'moderator' | 'reviewer'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -145,6 +335,11 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      day_kind: ['intro', 'developmental', 'synthesis'],
+      dimension: ['career', 'character', 'community'],
+      segment: ['undergrad', 'early_career', 'experienced_professional', 'entrepreneur'],
+      user_role: ['participant', 'moderator', 'reviewer'],
+    },
   },
 } as const

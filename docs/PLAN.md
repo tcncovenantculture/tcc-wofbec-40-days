@@ -183,10 +183,10 @@ reflections (id uuid pk, user_id uuid references profiles, day_number int refere
 - [x] RLS `days`: select where `status = 'published' and publish_at <= now()`, or `is_role('reviewer')`,
       or `is_role('moderator')`. No client insert, update or delete.
 - [x] RLS `progress` and `reflections`: own rows only, for every operation
-- [ ] Trigger: create the `profiles` row from `auth.users` metadata on sign-up
-- [ ] pgTAP tests: a participant can't read a future day; can't read another user's reflections; can't set
+- [x] Trigger: create the `profiles` row from `auth.users` metadata on sign-up
+- [x] pgTAP tests: a participant can't read a future day; can't read another user's reflections; can't set
       their own role. A reviewer can read a draft day.
-- [ ] `pnpm db:types`
+- [x] `pnpm db:types`
 
 Build notes (Oct 30):
 
