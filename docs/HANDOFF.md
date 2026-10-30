@@ -1,89 +1,80 @@
-# Handoff: where the build stands (Oct 29, 2026)
+# Handoff: where the build stands (Oct 30, 2026)
 
-For a new Claude Code session in `~/Documents/covenant-40-day`. The first session ran from the home folder,
-so none of its memory carries over. Read this file, then `CLAUDE.md` (project rules, auto-loaded) and
-`docs/PLAN.md` (phase plan, with Phase 0 ticked and "Build notes" under it). Those two documents are the
-source of truth; this file adds the current state, the decisions behind the code, and what to do next.
-Delete or update this file once it's out of date.
+For a new Claude Code session in `~/Documents/covenant-40-day`. Read this file, then `CLAUDE.md` (project
+rules, auto-loaded) and `docs/PLAN.md` (phase plan: ticked tasks plus "Build notes" under each section, which
+record the decisions made while building). Those two documents are the source of truth; this file adds the
+current state and what to do next. Update it at the end of each session.
 
 ## Where things stand
 
-- **Phase 0 is done.** `main` is pushed to GitHub, CI is green, and the app is live at
-  https://tcc-wofbec-40-days.vercel.app (smoke test, SPA rewrite, cache headers and offline loading checked
-  against it on Oct 29). Still open: the user's phone check of the install prompt, and Resend (below).
-- Typecheck, lint, 27 Vitest tests and 1 Playwright test pass. `pnpm build` works; initial JS is
-  115.5 KB gzipped (the Supabase client isn't imported anywhere yet, so it isn't counted).
-- Local Supabase is running in Docker (`pnpm exec supabase start -x logflare,vector,imgproxy,supavisor`).
-  The schema is empty; `src/lib/database.types.ts` was generated from it.
-- The landing page (`/`) is a themed placeholder with the real logo; every other route is a `RouteStub`
-  card naming the phase that builds it.
+- **Phase 0 is done.** Live at https://tcc-wofbec-40-days.vercel.app (Vercel Hobby, pointing at staging).
+- **Phase 1 code is done** (1.1 to 1.8, plus `compress-media.ts`): schema and RLS, programme clock, email-code
+  sign-up and sign-in, content schema and loader, sample content for all 40 days, home, the daily screen
+  (lesson stepper and synthesis template), reviewer preview, local seed. All pushed to `main`.
+- Checks: typecheck, lint, 115 Vitest tests, 26 pgTAP tests (`supabase test db`) pass. First-load JS is
+  **180.6 KB gzipped** (budget 200); sign-up, verify, day, preview and the other screens are lazy-loaded.
+- **Staging** is linked (`supabase link` done) and has all four migrations and the 40 sample days, loaded
+  with `--publish-now` so testers can open any day with `?asOf`.
+- **Local**: `supabase db reset` applies the migrations and `supabase/seed.sql` (five test users, Module 1
+  open). Sign in with a seeded email; the code arrives in Mailpit (http://127.0.0.1:54324).
 
-### Accounts
+## What's left for the Nov 1 working version (mostly the user)
+
+1. **Vercel:** add `VITE_ENABLE_AS_OF=true` to Production and Preview, then redeploy the latest commit. Every
+   Vercel build is a production build, and the test clock is off in those without it. **Remove it from
+   Production before Nov 8.** Check whether pushes now deploy automatically (Hobby may block a private
+   organisation repo); if not, the user deploys by hand.
+2. **Supabase staging dashboard** (project `tccwofbec-40-staging`), Authentication:
+   - Emails → Templates: "Confirm signup" and "Magic link" both get subject `{{ .Token }} is your 40 Days
+     code` and the body from `supabase/templates/sign-in-code.html`. Without this, staging emails contain a
+     link, not a code, and sign-up can't be finished.
+   - Sign In / Providers → Email: OTP length 6, expiry 3600 seconds.
+   - URL Configuration → Site URL: `https://tcc-wofbec-40-days.vercel.app`.
+   - After the user signs up on staging: Table Editor → `profiles` → their row → `role` = `reviewer`.
+3. **Email limits:** until Resend is set up, staging uses Supabase's built-in sender: a few emails an hour,
+   and (as far as we know) only to members of the Supabase organisation. Fine for the user's own Nov 1 test;
+   **Resend is needed before the Nov 2 leaders' test.** Resend and DNS are backlogged (Oct 30) until the
+   user has the church domain's DNS access.
+4. **Acceptance test on an Android phone** (PLAN.md, end of Phase 1): sign up, open
+   `/home?asOf=2026-11-14`, do Day 1's five steps, see it complete on home, reopen Day 1 and find the answers
+   saved, check Day 8 (`/day/8?asOf=2026-11-21`), and preview days at `/preview/1`.
+5. **Real Module 1:** when it arrives, save as `content/module-1.json`, run
+   `pnpm media:compress content/module-1.json --target …` if it has media, then `pnpm content:load` to local
+   and staging. It replaces the sample days by day number.
+
+## Next: Phase 2 (pods and chat, Nov 1 to Nov 4)
+
+Follow PLAN.md 2.1 to 2.4. Pod screen links already point at `/pod`; the Connect step and the synthesis
+day's pod card are where "Share with my pod" goes. Seed: two pods of five with a facilitator in each
+(extend `supabase/seed.sql`; its fixed user ids start `a1000000-`).
+
+## Accounts
 
 | Account | State |
 | --- | --- |
-| GitHub | `tcncovenantculture/tcc-wofbec-40-days`, **private, owned by an organisation**. Remote `origin` over HTTPS. |
-| Supabase staging | Created as **`tccwofbec-40-staging`** (not `c40-staging` as the plan says), region London `eu-west-2`, free org. CLI is logged in (`pnpm exec supabase login` done) but **not linked**. |
-| `.env.staging` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_PASSWORD` filled; `RESEND_API_KEY` empty. Gitignored. The project ref is the subdomain in `SUPABASE_URL`. |
+| GitHub | `tcncovenantculture/tcc-wofbec-40-days`, **private, owned by an organisation**. Remote `origin` over HTTPS; credentials in the macOS keychain; no `gh` CLI. |
+| Supabase staging | **`tccwofbec-40-staging`**, London `eu-west-2`, free org. Linked. Migrations: `pnpm exec supabase db push --linked`, with `SUPABASE_DB_PASSWORD` read from `.env.staging` in the shell without printing it. |
+| `.env.staging` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (an `sb_secret_` key), `SUPABASE_DB_PASSWORD` filled; `RESEND_API_KEY` empty. Gitignored. |
 | Vercel | **Hobby**, project `tcc-wofbec-40-days`. Production and Preview env vars point at staging (switch Production to prod before Nov 8). Hobby doesn't support private organisation repos: if automatic deploys get blocked, the user deploys by hand from the dashboard (their call; don't add a CI deploy workaround). |
-| Resend | Not set up. Use a domain the church already owns. Unknown: the domain name, who manages its DNS, the sender address. |
+| Resend | Not set up; backlogged. Use a domain the church already owns (`mail.<domain>` for sending, region `eu-west-1`; app at e.g. `40days.<domain>` via a Vercel CNAME). Unknown: the domain, who manages DNS, the sender address. |
 | Supabase prod | Later (by Nov 4, Phase 3): a **separate org on the Pro plan** so staging stays free (Supabase bills per org). Project `c40-prod`, same region. |
-| Resend Pro | Before Nov 8 sign-ups. The free plan allows about 100 emails a day; check current limits. |
+| Resend Pro | Before Nov 8 sign-ups. The free plan allows 100 emails a day and 3,000 a month. |
 
-## Next task: Resend and DNS (user), then Phase 1
+## Phase 1 decisions worth knowing (details in PLAN.md build notes)
 
-Steps 1 to 5 below were done on Oct 29 and are kept for reference. Step 6 (Resend and the app's custom
-domain) is with the user and the church's DNS owner.
-
-1. **Push to GitHub.** Ask the user for the repo URL (private, created empty). Then
-   `git remote add origin <url> && git push -u origin main`. Git uses HTTPS with credentials in the macOS
-   keychain; SSH isn't set up and the `gh` CLI isn't installed.
-2. **CI.** The push triggers `.github/workflows/ci.yml` (checkout@v7, pnpm/action-setup@v6, setup-node@v7,
-   Node 24: typecheck, lint, test). Ask the user to confirm it's green in the Actions tab; fix if not.
-3. **Vercel (the user clicks; you guide).** Hobby plan, sign up with GitHub, Add New → Project → import the
-   repo. Leave build settings alone: `vercel.json` sets framework `vite`, `pnpm install --frozen-lockfile`,
-   `pnpm build`, output `dist`, the SPA rewrite and cache headers (`/assets/*` immutable; `sw.js`,
-   `registerSW.js`, `manifest.webmanifest` must-revalidate). Environment variables, on **both Production and
-   Preview, pointing at staging for now** (switch Production to prod before Nov 8):
-   - `VITE_SUPABASE_URL`: staging project URL
-   - `VITE_SUPABASE_ANON_KEY`: staging **publishable** key (`sb_publishable_…`, from Project Settings →
-     API Keys). Safe to paste in chat; the secret key and DB password are not.
-   - `ENABLE_EXPERIMENTAL_COREPACK=1`, so Vercel uses pnpm 11.4.0 from `packageManager`
-
-   Things that could break the build: pnpm 11 on Vercel, `engines.node: "24.x"`, and `sharp` / `supabase`
-   in devDependencies (both install from prebuilt platform packages, no install scripts). If it fails, ask
-   the user to paste the build log.
-4. **Check the deploy.** Run `E2E_BASE_URL=<vercel url> pnpm test:e2e`, then on a phone check the themed
-   landing page, the install prompt (Android Chrome) and offline loading. Lighthouse no longer has a PWA
-   category; use Chrome DevTools → Application → Manifest for the installability check.
-5. Tick "Vercel SPA rewrite; first deploy" in `docs/PLAN.md`, commit, push.
-6. **In parallel (user):** Resend. Add a subdomain such as `mail.<church-domain>` in region `eu-west-1`,
-   have the DNS owner add its records, and add the app's CNAME from Vercel → Settings → Domains (e.g.
-   `40days.<church-domain>`) in the same visit. Create an API key with sending access and put it in
-   `.env.staging` as `RESEND_API_KEY`.
-
-## Then Phase 1 (due Sun Nov 1)
-
-Follow `docs/PLAN.md` 1.1 to 1.8. Decisions already made:
-
-- **Content: dummy data for all five modules (40 days) for now** (the user's call; the real files haven't
-  arrived). Write clearly labelled sample module files that pass the zod schema, load them to local and
-  staging with the loader, and swap in the real files later. This lets the home progress strip, catch-up
-  and reviewer preview be tested across all 40 days.
-- **Staging setup:** `pnpm exec supabase link --project-ref <ref>`, reading `SUPABASE_DB_PASSWORD` from
-  `.env.staging` in the shell without printing it. Then `pnpm exec supabase db push`. Auth settings in
-  `supabase/config.toml` are already OTP length 6 and expiry 3600. If you use `supabase config push` for
-  auth and the `{{ .Token }}` email template, review its diff before confirming, and make sure it can't
-  switch off SMTP settings set elsewhere.
-- **SMTP:** Resend via `[auth.email.smtp]` in `config.toml` (host `smtp.resend.com`, port 465, user
-  `resend`, password `env(RESEND_API_KEY)`), once the domain is verified. Until then, Supabase's built-in
-  email is rate-limited; check who it will send to before relying on it for the Nov 1 test.
-- **Keys:** the browser uses the publishable key (in the variable named `VITE_SUPABASE_ANON_KEY`). Scripts use
-  the secret key (`sb_secret_…`) as `SUPABASE_SERVICE_ROLE_KEY` from `.env.<target>`. Never in `src/`.
-- **Scripts** run with Node 24's built-in TypeScript support (`node scripts/x.ts`); `erasableSyntaxOnly`
-  is on to keep that working. `sharp` is already a devDependency for `compress-media.ts`.
-- The landing page's "Sign in" link points at `/signup?mode=signin` as a placeholder; Phase 1 decides the
-  real flow.
+- **Content:** sample modules in `content/samples/` (titles start "Sample:", KJV scripture) until the real
+  files arrive. `pnpm content:load` validates with the zod schema in `src/features/days/schema.ts`.
+- **Clock:** the app decides which days are open (`src/lib/programme.ts`, so `?asOf` works); RLS also hides
+  locked days. `?asOf` lasts for the browser tab session; `?asOf=off` clears it.
+- **Auth:** codes only. The profile is created when the code is sent (trigger on `auth.users`), so Phase 4's
+  pod formation must only pick confirmed emails. The privacy tick isn't stored yet; if the NDPA review wants
+  a consent record, add `privacy_accepted_at` in Phase 3.
+- **Offline:** the query cache (days, progress, profile; never reflections) is saved to localStorage and
+  cleared on sign-out; an expired token offline doesn't sign people out.
+- **Bundle:** dates display through `Intl` (date-fns `format`/`parse` were too heavy); zod, react-markdown
+  and confetti load on demand. Phase 3's landing page must also keep the Supabase client off its first load.
+- **Settings placeholder** has text-only mode and sign out, both needed for testing before Phase 3.
+- **Audio** compression is written but untested: ffmpeg isn't installed (`brew install ffmpeg`).
 
 ## Decisions in the code so far (and why)
 
@@ -160,9 +151,12 @@ Follow `docs/PLAN.md` 1.1 to 1.8. Decisions already made:
 
 ## Watch out for
 
-- **Bundle budget.** 115.5 KB gzipped before the Supabase client. Phase 3 wants the landing page under
-  100 KB total on first load (excluding fonts), so plan for a lean landing route then; Phase 5 enforces the
-  200 KB budget.
+- **Bundle budget.** First load is 180.6 KB gzipped of the 200 KB budget (React DOM and the whole Supabase
+  client are most of it; its storage and realtime parts aren't needed up front). Check the size after every
+  feature: `pnpm build`, then gzip the scripts named in `dist/index.html`. Phase 3 wants the landing page
+  under 100 KB on first load (excluding fonts), so it will need the Supabase client kept off that route.
+- Pipe-free checks: run `pnpm format:check` on its own before committing. Piping it through `tail` hides a
+  failure (it happened twice on Oct 30).
 - The staging project name differs from the plan (`tccwofbec-40-staging`). That's fine; don't rename it.
 
 ## How the user works

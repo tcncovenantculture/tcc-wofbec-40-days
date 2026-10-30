@@ -57,6 +57,7 @@ supabase db reset             # re-apply migrations + seed locally
 supabase test db              # RLS tests in supabase/tests
 pnpm db:types                 # supabase gen types typescript --local > src/lib/database.types.ts
 pnpm content:load content/module-1.json [--target local|staging|prod]
+pnpm media:compress content/module-1.json [--target local|staging|prod]   # before content:load, if it has media
 pnpm pods:form [--commit]     # suggest pods (dry run prints CSV); --commit writes them
 ```
 
