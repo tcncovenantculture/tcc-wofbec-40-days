@@ -713,8 +713,21 @@ Build notes (Oct 30, built ahead of Phase 3's remaining tasks so it exists befor
 
 ### 4.4 My journey (`/journey`)
 
-- [ ] Completed days grouped by module (module accent), each opening that day's reflections read-only with
+- [x] Completed days grouped by module (module accent), each opening that day's reflections read-only with
       an edit option; share button per reflection; empty state for days not yet done
+
+Build notes (Oct 31, overnight run):
+
+- Each open module is a card with its accent on the left edge. A finished day expands in place to show its
+  questions and your answers ("Only you can see these"); "Edit my answers" swaps in the day screen's own
+  autosaving boxes, and "Open Day N" goes to the full day. Answers load when the day is opened, not with the
+  list, and aren't saved on the phone (same rule as before), so offline they say they'll show when you're back.
+- Open days you haven't done show as "Ready when you are" with a link, the same wording as home's catch-up
+  list. Modules that haven't started show one line each with their opening date. Before Day 1 the screen says
+  when it starts.
+- The share sheet moved out of `ShareReflections` into `ShareSheet` and `ShareButton` (plus
+  `use-share-state.ts`), so the day screen and My journey share it.
+- `RouteStub` is gone: every route has its real screen.
 
 **Acceptance:** a report on staging emails a test moderator within a minute and the moderator can hide the
 message; the formation script dry run on 23 seeded users produces valid pods; a reminder reaches only a
