@@ -1,6 +1,6 @@
 # Covenant Culture 40-Day Experience
 
-Mobile-first PWA for 40 days of daily discipleship in pods, leading into WOFBEC 2027.
+Mobile-first PWA for 40 days of daily discipleship with users in pods, leading into WOFBEC 2027.
 Project rules and conventions: [CLAUDE.md](CLAUDE.md). Build plan: [docs/PLAN.md](docs/PLAN.md).
 
 ## Setup
