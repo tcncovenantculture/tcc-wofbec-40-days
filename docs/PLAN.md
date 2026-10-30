@@ -176,7 +176,7 @@ reflections (id uuid pk, user_id uuid references profiles, day_number int refere
              unique (user_id, day_number, prompt_index))
 ```
 
-- [ ] Migrations for the above, plus an `updated_at` trigger
+- [x] Migrations for the above, plus an `updated_at` trigger
 - [ ] Helper `is_role(r user_role)`: `security definer`, `search_path = public`
 - [ ] RLS `profiles`: select and update own row. Users can't change `role` (column-level grant or trigger).
       Moderators can read `display_name` of anyone (needed for reports).
