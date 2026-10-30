@@ -17,6 +17,9 @@ coverage
 !.env.example
 *.local
 
+# Content media: originals and compressed copies stay local; Storage serves them (scripts/compress-media.ts)
+content/media/
+
 # Tests
 playwright-report
 test-results

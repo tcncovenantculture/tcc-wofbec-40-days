@@ -265,9 +265,13 @@ The content file format is in `content/module-1.template.json`. One file per cur
       from `.env.<target>` (gitignored). `--dry-run` validates only. Local reads its keys from
       `supabase status`. `--publish-now` unlocks every day now for `?asOf` testing (refused for prod);
       prod needs `--yes`.
-- [ ] `scripts/compress-media.ts`: resizes images to at most 1200px wide as WebP (target 150 KB or less) with
+- [x] `scripts/compress-media.ts`: resizes images to at most 1200px wide as WebP (target 150 KB or less) with
       sharp; re-encodes audio to 64 kbps mono; uploads to the Storage bucket `media` (public read); rewrites
-      URLs in the JSON
+      URLs in the JSON. `pnpm media:compress <file> [--target …] [--dry-run]`. Sources go in `content/media/`
+      (gitignored); outputs are named with a content hash so they can be cached for a year, and the JSON gets
+      a bucket path (`media/module-1/day-3-1a2b3c4d.webp`) that works in every environment, so run it once
+      per target. The loader refuses a file with unprocessed media. Images tested; **audio is untested**
+      because ffmpeg isn't installed here (`brew install ffmpeg`).
 - [x] Video: not self-hosted. Use an unlisted YouTube link rendered as a tap-to-load facade (thumbnail only
       until tapped), with the transcript beside it. Plays from `youtube-nocookie.com`.
 - [ ] Load Module 1 to local and staging as soon as the file arrives. The real file hasn't arrived; the
