@@ -426,17 +426,47 @@ Build notes (Oct 30):
 
 ### 2.2 Pod screen (`/pod`)
 
-- [ ] Header: pod name, the five avatars (initials until Phase 3), "4 of 5 done today"
-- [ ] Tabs: **Today** (day's pod prompt pinned at the top, then that day's thread), **Earlier** (list of past
+- [x] Header: pod name, the five avatars (initials until Phase 3), "4 of 5 done today"
+- [x] Tabs: **Today** (day's pod prompt pinned at the top, then that day's thread), **Earlier** (list of past
       days with message counts; tap to open the thread), **General** (`day_number` null)
-- [ ] Announcements from moderators pinned above the tabs; facilitator's pinned post at the top of Today
-- [ ] Composer: textarea with send, optimistic insert, retry on failure, 2000-character limit
-- [ ] Load the latest 30 messages, older ones on scroll up (keyset pagination on `created_at, id`)
-- [ ] **Board first:** pull-to-refresh plus refetch on focus. **Then live:** Supabase Realtime
+- [x] Announcements from moderators pinned above the tabs; facilitator's pinned post at the top of Today
+- [x] Composer: textarea with send, optimistic insert, retry on failure, 2000-character limit
+- [x] Load the latest 30 messages, older ones on scroll up (keyset pagination on `created_at, id`)
+- [x] **Board first:** pull-to-refresh plus refetch on focus. **Then live:** Supabase Realtime
       `postgres_changes` on `messages` filtered by `pod_id`, subscribed only while `/pod` is open. If Realtime
       isn't stable by Nov 3, ship the board for the walkthrough.
-- [ ] Message actions sheet: Report (Phase 4 wires the email), Hide (facilitator and moderator only)
-- [ ] No pod yet (before Nov 13): "Your pod forms on Nov 13. Here's how pods work" (Mark 2:1 to 4)
+- [x] Message actions sheet: Report (Phase 4 wires the email), Hide (facilitator and moderator only)
+- [x] No pod yet (before Nov 13): "Your pod forms on Nov 13. Here's how pods work" (Mark 2:1 to 4)
+
+Build notes (Oct 30):
+
+- **Report is listed but switched off** ("Reporting opens before launch…") until 4.1 adds the reports
+  table, the reason form and the email. Hide works, with a confirmation that says moderators can still read
+  the message.
+- Threads read `pod_messages` newest first, 30 a page, with a `(created_at, id)` cursor. "Load earlier
+  messages" loads the next page when it scrolls into view. The screen opens at the newest message and only
+  follows new ones while the reader is at the bottom.
+- **Sending:** the phone makes the message id. Sending, waiting (offline) and failed messages come from
+  TanStack's mutation cache, so they survive tab switches; a failed one offers Try again or Remove. A retry
+  that turns out to have got through already (23505) counts as sent.
+- **Live:** the Realtime channel is open only on `/pod`. Each change refetches that thread, since bodies
+  aren't in Realtime payloads. Whenever the subscription is confirmed (first connect and every reconnect
+  after a dropped signal), the pod's threads refetch once, so nothing sent in the gap is missed.
+  Announcements (`pod_id` null) can't match the pod filter: they refresh on focus and pull-to-refresh.
+- Pull-to-refresh is hand-made (the installed app has no browser refresh) and turns the browser's own off
+  while `/pod` is open.
+- The facilitator pins with "Pin to the top of this thread" in the composer (shown once there's text). The
+  newest pinned post shows above its thread.
+- Header: overlapping initials (module ink shades, picked from the user id) with the names as a sentence
+  ("Ada, Dayo, Efe, Funmi and you"), so a pod of six fits on a small phone. Finishing a day refreshes the
+  totals. Earlier's counts come from `pod_thread_counts()`, a small RPC added for this tab, rather than
+  downloading every message. Outside the 40 days the screen opens on General.
+- **Phone keyboard:** the viewport meta now has `interactive-widget=resizes-content`, so the fixed composer
+  sits above the Android keyboard, and the bottom nav hides while typing (CSS `:has()`, touch screens only).
+- shadcn tabs were 32px with 14px text; now 48px with 16px, per the brief's tap-target and text-size rules.
+- Bundle: `/pod` is a lazy 21 KB chunk; first load is still about 178 KB gzipped.
+- Checked locally with three phones in Playwright: live delivery between Ada and Bola, nothing for Chidi in
+  the other pod, hiding, the totals after finishing a day, Earlier's counts, and the "no pod yet" screen.
 
 ### 2.3 Share a reflection
 

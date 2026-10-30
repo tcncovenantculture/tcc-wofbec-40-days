@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(47);
+select plan(49);
 
 -- Setup, as postgres ----------------------------------------------------------------------------------
 
@@ -243,6 +243,12 @@ select is(
   'the roster never returns email, phone, segment or role'
 );
 
+select results_eq(
+  'select day_number, messages from public.pod_thread_counts()',
+  $$ values (1, 2) $$,
+  'thread counts cover my pod''s day threads only (general chat and other pods left out)'
+);
+
 -- As Ada, the facilitator of pod A ---------------------------------------------------------------------
 
 select set_config('request.jwt.claims', '{"sub": "aa000000-0000-0000-0000-000000000001", "role": "authenticated"}', true);
@@ -366,6 +372,7 @@ select set_config('request.jwt.claims', '', true);
 select throws_ok('select * from public.pods', '42501', null, 'signed-out visitors cannot read pods');
 select throws_ok('select * from public.pod_messages', '42501', null, 'signed-out visitors cannot read messages');
 select throws_ok('select * from public.pod_roster()', '42501', null, 'signed-out visitors cannot read a roster');
+select throws_ok('select * from public.pod_thread_counts()', '42501', null, 'signed-out visitors cannot read thread counts');
 
 -- Back as postgres --------------------------------------------------------------------------------------
 

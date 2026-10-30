@@ -201,3 +201,10 @@
     line-height: 1.1;
   }
 }
+
+/* While someone types in the pod composer on a phone, hide the bottom nav so the keyboard has room. */
+@media (pointer: coarse) {
+  body:has([data-composer]:focus) [data-bottom-nav] {
+    display: none;
+  }
+}

@@ -417,6 +417,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      pod_thread_counts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          day_number: number
+          messages: number
+        }[]
+      }
       pod_today_totals: {
         Args: { for_day: number }
         Returns: {

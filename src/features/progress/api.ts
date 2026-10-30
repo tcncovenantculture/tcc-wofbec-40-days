@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { podKeys } from '@/features/pods/keys'
 import { supabase } from '@/lib/supabase'
 
 export const progressKeys = { all: ['progress'] as const }
@@ -34,6 +35,8 @@ export function useCompleteDay() {
         done.includes(dayNumber) ? done : [...done, dayNumber],
       )
       void queryClient.invalidateQueries({ queryKey: progressKeys.all })
+      // The pod screen's "4 of 5 done today" includes this person.
+      void queryClient.invalidateQueries({ queryKey: podKeys.allTotals })
     },
   })
 }
