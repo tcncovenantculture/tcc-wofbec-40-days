@@ -254,10 +254,12 @@ Build notes (Oct 30):
 
 The content file format is in `content/module-1.template.json`. One file per curriculum module, eight days each.
 
-- [ ] Zod schema `features/days/schema.ts`, shared by the loader and the app. Rules: day numbers are
+- [x] Zod schema `features/days/schema.ts`, shared by the loader and the app. Rules: day numbers are
       contiguous within the module; `kind` is `intro` for the first day, `synthesis` for the eighth and
       `developmental` otherwise; at least one reflection prompt; `est_minutes` between 5 and 20; every video
-      has a `transcript`; every image has `alt`; `ai_generated` is present on every media item.
+      has a `transcript`; every image has `alt`; `ai_generated` is present on every media item. Also: at
+      most three prompts, audio needs a transcript (text-only mode shows it instead), videos must be YouTube
+      links, and unknown fields are rejected so typos are caught.
 - [ ] `scripts/load-content.ts <file> --target local|staging|prod`: validates, fills `publish_at` from
       `publishAtFor` unless given, upserts by `day_number`, prints a summary table. Uses the service role key
       from `.env.<target>` (gitignored). `--dry-run` validates only.

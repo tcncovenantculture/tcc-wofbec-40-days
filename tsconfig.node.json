@@ -2,8 +2,10 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "es2023",
-    "lib": ["ES2023"],
-    "types": ["node"],
+    // DOM and vite/client: scripts import src/lib/programme.ts and src/features/days/schema.ts, which
+    // are typed for the browser
+    "lib": ["ES2023", "DOM"],
+    "types": ["node", "vite/client"],
     "skipLibCheck": true,
 
     /* Bundler mode */

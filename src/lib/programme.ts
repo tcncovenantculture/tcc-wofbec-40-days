@@ -51,8 +51,10 @@ export function publishAtFor(day: number): Date {
 
 const AS_OF_KEY = 'c40.asOf'
 
+// import.meta.env only exists under Vite: scripts/load-content.ts imports this file from Node, where it's
+// undefined, so read it with ?. (the test clock is never used there).
 export const asOfEnabled =
-  import.meta.env.MODE !== 'production' || import.meta.env.VITE_ENABLE_AS_OF === 'true'
+  import.meta.env?.MODE !== 'production' || import.meta.env?.VITE_ENABLE_AS_OF === 'true'
 
 /** Parses a YYYY-MM-DD test date as midday Lagos time, or returns null if it isn't a real date. */
 export function parseAsOf(value: string | null | undefined): Date | null {
@@ -79,7 +81,7 @@ function storeAsOf(value: string | null) {
 }
 
 /** The test date in effect, if any. Reads ?asOf from the URL first, then the tab session. */
-export function asOfOverride(search: string = window.location.search): Date | null {
+export function asOfOverride(search: string = globalThis.location?.search ?? ''): Date | null {
   if (!asOfEnabled) return null
   const param = new URLSearchParams(search).get('asOf')
   if (param === 'off') {
