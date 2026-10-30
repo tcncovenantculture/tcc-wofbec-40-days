@@ -524,10 +524,32 @@ Goal: anyone scanning the QR code on Youth Sunday can sign up in under two minut
 
 ### 3.1 Landing (`/`)
 
-- [ ] One screen: what the 40 days are (Acts 1:3), dates, pods of five (Mark 2:1 to 4), three dimensions
+- [x] One screen: what the 40 days are (Acts 1:3), dates, pods of five (Mark 2:1 to 4), three dimensions
       (Romans 12:11), "Join" CTA, "Sign in" link. At most one illustration, lazy-loaded. Under 100 KB total
       on first load, excluding fonts.
-- [ ] Open Graph image and description, for when the link is shared on WhatsApp
+- [x] Open Graph image and description, for when the link is shared on WhatsApp
+
+Build notes (Oct 30):
+
+- **The landing page boots on its own.** With no saved session, `src/main.tsx` renders it without the router,
+  Supabase client or query cache, and its links are plain anchors that load the full app. Everything else,
+  and `/` for anyone with a saved session (sent on to `/home`, which is how the installed app opens), loads
+  the full app with a dynamic import.
+- **Size:** 91.8 kB as served (Brotli, which Vercel sends Chrome), including the logo and favicon; 103.7 kB
+  if measured with gzip. React DOM alone is about 60 kB, so the margin is small. **Anything imported by
+  `main.tsx`, `landing.tsx`, `error-boundary.tsx`, `load-failed.tsx` or `page-frame.tsx` counts against it.**
+  Those files use `buttonVariants` (now in `button-variants.ts`) instead of `<Button>`, whose class-merging
+  library costs about 9 kB, and `<Logo>` joins its classes itself. The full logo, used only here, is 416px at
+  lighter compression (13.9 kB, down from 28.7 kB). `pnpm size` checks this budget and the app's 200 kB after a
+  build, and the smoke test fails if the landing page requests the App chunk or Supabase.
+- **The service worker is registered by `main.tsx` when the full app loads** (`injectRegister: false`), so a
+  visitor who only reads the landing page doesn't download the whole app in the background. Same behaviour as
+  before otherwise: no forced reloads on deploy.
+- A static loader in `index.html` shows until the app starts, so a slow connection never sees a blank page.
+- Open Graph tags use absolute URLs from `VERCEL_PROJECT_PRODUCTION_URL` (the custom domain once one is added;
+  `VITE_SITE_URL` overrides). The image is `public/og.png` (1200×630, 37 kB), drawn by `pnpm og:image` in the
+  app's fonts. Re-run it if the dates or design change.
+- No illustration yet; there's room for about 8 kB if one is wanted.
 
 ### 3.2 Privacy and consent
 

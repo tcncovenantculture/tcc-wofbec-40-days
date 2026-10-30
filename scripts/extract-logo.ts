@@ -123,7 +123,12 @@ function toTransparent(box: Box) {
 const full = padded(minX, maxX)
 const mark = padded(minX, gapStart - 1)
 
-await toTransparent(full).webp(WEBP).toFile('src/assets/brand/logo.webp')
+// The full logo appears only on the landing page, at 208px wide: 416px covers 2x screens, and lighter
+// compression keeps that page inside its 100 KB first-load budget.
+await toTransparent(full)
+  .resize({ width: 416 })
+  .webp({ quality: 60, alphaQuality: 65, effort: 6 })
+  .toFile('src/assets/brand/logo.webp')
 await toTransparent(mark).webp(WEBP).toFile('src/assets/brand/logo-mark.webp')
 
 // Square icon source: the mark centred on cream (the app background, palette.cream) with a margin.
@@ -137,7 +142,7 @@ await sharp({ create: { width: side, height: side, channels: 4, background: '#FB
   .toFile('public/icon-source.png')
 
 console.table({
-  'logo.webp': { width: full.width, height: full.height },
+  'logo.webp': { width: 416, height: Math.round((full.height * 416) / full.width) },
   'logo-mark.webp': { width: mark.width, height: mark.height },
   'icon-source.png': { width: side, height: side },
 })

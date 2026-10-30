@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { AUTH_STORAGE_KEY } from './auth-storage'
 import type { Database } from './database.types'
 
 // Browser client. Uses the anon (publishable) key only: the service role key never belongs in src/.
@@ -9,9 +10,6 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 if (!url || !anonKey) {
   throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Copy .env.example to .env.local.')
 }
-
-/** Where supabase-js keeps the session in localStorage. Fixed so the auth provider can read it offline. */
-export const AUTH_STORAGE_KEY = 'c40.auth'
 
 export const supabase = createClient<Database>(url, anonKey, {
   auth: {

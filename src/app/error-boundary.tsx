@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button-variants'
 
 interface Props {
   children: ReactNode
@@ -27,7 +27,10 @@ export class ErrorBoundary extends Component<Props, State> {
       <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 px-5 text-center">
         <h1 className="text-4xl">Something went wrong</h1>
         <p className="text-ink-soft">Sorry about that. Reloading the page usually fixes it.</p>
-        <Button onClick={() => window.location.reload()}>Reload</Button>
+        {/* A plain button with the Button styles: this file is in the landing page's first load. */}
+        <button type="button" className={buttonVariants()} onClick={() => window.location.reload()}>
+          Reload
+        </button>
       </main>
     )
   }

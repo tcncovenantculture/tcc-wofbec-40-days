@@ -15,8 +15,13 @@ current state and what to do next. Update it at the end of each session.
 - **Phase 2 code is done** (2.1 to 2.4), built Oct 30 ahead of the Phase 1 phone test at the user's request:
   pods, members and messages with RLS; the pod screen with live chat; sharing a reflection; the WhatsApp
   link. Its acceptance passed locally (three Playwright phones) and still has to be shown on staging.
-- Checks: typecheck, lint, 136 Vitest tests, 75 pgTAP tests (`supabase test db`) pass. First-load JS is
-  **about 178 KB gzipped** (budget 200); `/pod` is a lazy 21 KB chunk, like the other screens.
+- **Phase 3 started Oct 30** (again ahead of the staging walkthroughs, at the user's request). **3.1 landing
+  is done.** Agreed order from here (user, Oct 30): **4.1 reports and moderation next, pulled forward** so it
+  exists before sign-up opens on Nov 8 (brief rule 5), then 3.2 privacy and consent, 3.3 avatars, 3.4
+  baseline questions (wording still due from the project lead), 3.5 load and email check (needs Resend).
+- Checks: typecheck, lint, 136 Vitest tests, 75 pgTAP tests, the Playwright smoke test and `pnpm size` pass.
+  The landing page is **91.8 kB as served** (budget 100); the signed-in app's JS is **184.9 kB gzipped**
+  (budget 200). `/pod` is a lazy 21 kB chunk, like the other screens.
 - **Staging** is linked and has all seven migrations and the 40 sample days (loaded with `--publish-now`, so
   testers can open any day with `?asOf`), but **no pods**: the seed is local only. `pnpm pods:test --target
   staging --name "…" email…` puts testers in a pod.
@@ -40,15 +45,15 @@ current state and what to do next. Update it at the end of each session.
    dashboard steps, testers signing up, then test pods (`pnpm pods:test`; the user may send the emails for
    Claude to run it). If either test turns up bugs, fix them before starting Phase 3.
 
-## Next: Phase 3 (public sign-up, Nov 4 to Nov 7)
+## Next: 4.1 reports and moderation (pulled forward), then the rest of Phase 3
 
-Follow PLAN.md 3.1 to 3.5 once the Phase 2 walkthrough has passed on staging. Things to know going in:
-- The landing page must load under 100 KB (excluding fonts), so keep the Supabase client off its first load.
+Follow PLAN.md 4.1: the `reports` table, the report sheet behind the message options' (currently switched
+off) Report button, the facilitator's badge, `/mod` for moderators, and the `notify-report` edge function.
+The email needs Resend, which isn't set up yet: build and test everything else, with the function ready to
+switch on once `RESEND_API_KEY` exists. Then PLAN.md 3.2 onwards. Things to know:
 - 3.3 avatars: choosing the DiceBear style (and checking its licence) also decides whether it replaces the
   initials avatars in the pod header and the drawn pod picture (`src/features/pods/pod-picture.ts`).
 - Production Supabase (a separate Pro org) and Resend Pro are needed before Nov 8.
-- Brief rule 5 wants reporting and moderation before sign-up opens on Nov 8, but the plan has 4.1 starting
-  Nov 7. The Report button is a switched-off placeholder until then. Worth raising with the user.
 
 ## Accounts
 
@@ -172,10 +177,11 @@ Follow PLAN.md 3.1 to 3.5 once the Phase 2 walkthrough has passed on staging. Th
 
 ## Watch out for
 
-- **Bundle budget.** First load is 180.6 KB gzipped of the 200 KB budget (React DOM and the whole Supabase
-  client are most of it; its storage and realtime parts aren't needed up front). Check the size after every
-  feature: `pnpm build`, then gzip the scripts named in `dist/index.html`. Phase 3 wants the landing page
-  under 100 KB on first load (excluding fonts), so it will need the Supabase client kept off that route.
+- **Size budgets.** Run `pnpm build && pnpm size` after every feature. The signed-in app's JS is 184.9 kB
+  gzipped of 200 (React DOM and the Supabase client are most of it). The landing page is 91.8 kB as served of
+  100, with little room: anything `main.tsx`, `landing.tsx`, `error-boundary.tsx`, `load-failed.tsx` or
+  `page-frame.tsx` imports lands in it, so those use `buttonVariants` (not `<Button>`) and never import the
+  router, Supabase, TanStack Query or `cn`. The smoke test catches the App chunk or Supabase loading there.
 - Pipe-free checks: run `pnpm format:check` on its own before committing. Piping it through `tail` hides a
   failure (it happened three times on Oct 30). Prettier sometimes needs a second `--write` pass on long
   method chains.
@@ -204,4 +210,4 @@ Follow PLAN.md 3.1 to 3.5 once the Phase 2 walkthrough has passed on staging. Th
 - Original logo file (SVG or 1024px+ PNG)
 - From the plan: moderator names (by Nov 7), whether reports also go to moderators, baseline question
   wording (by Nov 5), data retention period
-- Whether to build reporting (4.1) earlier, so it exists before sign-up opens on Nov 8 (brief rule 5)
+- A contact email for the privacy notice (3.2); it could be the same church inbox as the reply-to

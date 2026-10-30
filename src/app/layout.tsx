@@ -1,6 +1,7 @@
 import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { DotsLoader } from '@/components/brand/dots-loader'
+import { PageFrame } from './page-frame'
 
 /**
  * Declarative React Router keeps the scroll position between screens, so a day opened from far down the
@@ -17,7 +18,7 @@ function ScrollToTopOnNavigate() {
 
 export function AppLayout() {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)]">
+    <PageFrame>
       <ScrollToTopOnNavigate />
       <Suspense
         fallback={
@@ -28,6 +29,6 @@ export function AppLayout() {
       >
         <Outlet />
       </Suspense>
-    </div>
+    </PageFrame>
   )
 }

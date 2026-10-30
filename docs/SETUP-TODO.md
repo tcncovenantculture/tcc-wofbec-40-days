@@ -130,6 +130,13 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
 - [ ] Test: sign up on staging with your own email. The code comes from `hello@40days.tcnikeja.org`, and
       Resend → Emails shows it delivered.
 
+## Landing page (built Oct 30)
+
+- [ ] After the next deploy, open the live site's home page on your phone while signed out and read it through.
+      The words are a first draft for you (and Pastor Yemi) to change.
+- [ ] Paste the site's link into a WhatsApp chat (to yourself) and check the preview shows the "40 Days"
+      picture. Once `40days.tcnikeja.org` is added in Vercel, redeploy so the preview uses that address.
+
 ## Before Nov 8 (public sign-up)
 
 - [ ] Upgrade Resend to **Pro** ($20 a month). The free plan stops at 100 emails a day, and Youth Sunday

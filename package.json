@@ -11,6 +11,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "size": "node scripts/check-size.ts",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -22,7 +23,8 @@
     "content:load": "node scripts/load-content.ts",
     "media:compress": "node scripts/compress-media.ts",
     "pods:test": "node scripts/test-pod.ts",
-    "icons": "pwa-assets-generator"
+    "icons": "pwa-assets-generator",
+    "og:image": "node scripts/og-image.ts"
   },
   "dependencies": {
     "@date-fns/tz": "1.5.0",

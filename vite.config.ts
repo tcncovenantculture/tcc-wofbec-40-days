@@ -7,12 +7,23 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 const cream = '#FBF5EE'
 
+// Link previews (Open Graph) need absolute URLs. On Vercel the production domain is known at build time
+// (a custom domain once one is added); VITE_SITE_URL overrides it; locally it's the dev server.
+const siteUrl =
+  process.env.VITE_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:5271')
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    { name: 'site-url', transformIndexHtml: (html) => html.replaceAll('%SITE_URL%', siteUrl) },
     VitePWA({
       registerType: 'autoUpdate',
+      // Registered by main.tsx once the full app loads, never on the landing page (see main.tsx).
+      injectRegister: false,
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: 'Covenant Culture 40 Days',

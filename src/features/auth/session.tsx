@@ -1,7 +1,8 @@
 import type { Session } from '@supabase/supabase-js'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { AUTH_STORAGE_KEY, supabase } from '@/lib/supabase'
+import { AUTH_STORAGE_KEY } from '@/lib/auth-storage'
+import { supabase } from '@/lib/supabase'
 import { AuthContext, type AuthState } from './use-auth'
 
 /**

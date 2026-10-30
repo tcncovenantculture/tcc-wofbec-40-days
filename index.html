@@ -9,15 +9,51 @@
     <title>Covenant Culture 40 Days</title>
     <meta
       name="description"
-      content="40 days of daily discipleship in pods of five, leading into WOFBEC 2027."
+      content="A few minutes a day with Jesus, with a small pod. Starts Saturday 14 November and leads into WOFBEC 2027."
     />
+    <!-- Link previews (WhatsApp and others). %SITE_URL% is filled in by vite.config.ts. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Covenant Culture" />
+    <meta property="og:title" content="40 Days with Covenant Culture" />
+    <meta
+      property="og:description"
+      content="A few minutes a day with Jesus, with a small pod. Starts Saturday 14 November and leads into WOFBEC 2027."
+    />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Covenant Culture 40 Days, starting 14 November" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#FBF5EE" />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/pwa-192x192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Shown until the app starts (React replaces it), so a slow connection never sees a blank page. -->
+    <div id="root">
+      <div class="flex min-h-dvh items-center justify-center gap-1.5" role="status">
+        <span class="size-2.5 animate-dot-bounce rounded-full bg-purple motion-reduce:animate-none"></span>
+        <span
+          class="size-2.5 animate-dot-bounce rounded-full bg-green motion-reduce:animate-none"
+          style="animation-delay: 120ms"
+        ></span>
+        <span
+          class="size-2.5 animate-dot-bounce rounded-full bg-yellow motion-reduce:animate-none"
+          style="animation-delay: 240ms"
+        ></span>
+        <span
+          class="size-2.5 animate-dot-bounce rounded-full bg-amber motion-reduce:animate-none"
+          style="animation-delay: 360ms"
+        ></span>
+        <span
+          class="size-2.5 animate-dot-bounce rounded-full bg-coral motion-reduce:animate-none"
+          style="animation-delay: 480ms"
+        ></span>
+        <span class="sr-only">Loading</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

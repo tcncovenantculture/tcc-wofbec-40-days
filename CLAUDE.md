@@ -47,6 +47,8 @@ Day 40 = Dec 23, Day 50 = Jan 2.
 ```bash
 pnpm dev                      # Vite dev server
 pnpm build && pnpm preview    # production build
+pnpm size                     # after a build: landing page under 100 KB, signed-in app JS under 200 KB
+pnpm og:image                 # redraw public/og.png (the WhatsApp link preview) after design or date changes
 pnpm typecheck                # tsc --noEmit
 pnpm lint                     # eslint
 pnpm test                     # vitest
