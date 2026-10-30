@@ -260,9 +260,11 @@ The content file format is in `content/module-1.template.json`. One file per cur
       has a `transcript`; every image has `alt`; `ai_generated` is present on every media item. Also: at
       most three prompts, audio needs a transcript (text-only mode shows it instead), videos must be YouTube
       links, and unknown fields are rejected so typos are caught.
-- [ ] `scripts/load-content.ts <file> --target local|staging|prod`: validates, fills `publish_at` from
+- [x] `scripts/load-content.ts <file> --target local|staging|prod`: validates, fills `publish_at` from
       `publishAtFor` unless given, upserts by `day_number`, prints a summary table. Uses the service role key
-      from `.env.<target>` (gitignored). `--dry-run` validates only.
+      from `.env.<target>` (gitignored). `--dry-run` validates only. Local reads its keys from
+      `supabase status`. `--publish-now` unlocks every day now for `?asOf` testing (refused for prod);
+      prod needs `--yes`.
 - [ ] `scripts/compress-media.ts`: resizes images to at most 1200px wide as WebP (target 150 KB or less) with
       sharp; re-encodes audio to 64 kbps mono; uploads to the Storage bucket `media` (public read); rewrites
       URLs in the JSON
