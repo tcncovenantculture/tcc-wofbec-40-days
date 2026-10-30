@@ -87,6 +87,137 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          day_number: number | null
+          hidden_at: string | null
+          hidden_by: string | null
+          id: string
+          kind: Database['public']['Enums']['message_kind']
+          pod_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          day_number?: number | null
+          hidden_at?: string | null
+          hidden_by?: string | null
+          id?: string
+          kind?: Database['public']['Enums']['message_kind']
+          pod_id?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          day_number?: number | null
+          hidden_at?: string | null
+          hidden_by?: string | null
+          id?: string
+          kind?: Database['public']['Enums']['message_kind']
+          pod_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'messages_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_day_number_fkey'
+            columns: ['day_number']
+            isOneToOne: false
+            referencedRelation: 'days'
+            referencedColumns: ['day_number']
+          },
+          {
+            foreignKeyName: 'messages_hidden_by_fkey'
+            columns: ['hidden_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_pod_id_fkey'
+            columns: ['pod_id']
+            isOneToOne: false
+            referencedRelation: 'pods'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      pod_members: {
+        Row: {
+          is_facilitator: boolean
+          joined_at: string
+          pod_id: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          is_facilitator?: boolean
+          joined_at?: string
+          pod_id: string
+          user_id: string
+        }
+        Update: {
+          is_facilitator?: boolean
+          joined_at?: string
+          pod_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'pod_members_pod_id_fkey'
+            columns: ['pod_id']
+            isOneToOne: false
+            referencedRelation: 'pods'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pod_members_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      pods: {
+        Row: {
+          avatar_seed: string
+          created_at: string
+          id: string
+          name: string
+          segment: Database['public']['Enums']['segment']
+          whatsapp_invite_link: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          avatar_seed?: string
+          created_at?: string
+          id?: string
+          name: string
+          segment: Database['public']['Enums']['segment']
+          whatsapp_invite_link?: string | null
+        }
+        Update: {
+          avatar_seed?: string
+          created_at?: string
+          id?: string
+          name?: string
+          segment?: Database['public']['Enums']['segment']
+          whatsapp_invite_link?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar: Json | null
@@ -206,10 +337,69 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pod_messages: {
+        Row: {
+          author_id: string | null
+          body: string | null
+          created_at: string
+          day_number: number | null
+          hidden: boolean | null
+          id: string
+          kind: Database['public']['Enums']['message_kind']
+          pod_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          author_id?: string | null
+          body?: never
+          created_at?: string | null
+          day_number?: number | null
+          hidden?: never
+          id?: string | null
+          kind?: Database['public']['Enums']['message_kind'] | null
+          pod_id?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          body?: never
+          created_at?: string | null
+          day_number?: number | null
+          hidden?: never
+          id?: string | null
+          kind?: Database['public']['Enums']['message_kind'] | null
+          pod_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'messages_author_id_fkey'
+            columns: ['author_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_day_number_fkey'
+            columns: ['day_number']
+            isOneToOne: false
+            referencedRelation: 'days'
+            referencedColumns: ['day_number']
+          },
+          {
+            foreignKeyName: 'messages_pod_id_fkey'
+            columns: ['pod_id']
+            isOneToOne: false
+            referencedRelation: 'pods'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Functions: {
+      hide_message: { Args: { message_id: string }; Returns: undefined }
+      is_facilitator_of: { Args: { pod: string }; Returns: boolean }
+      is_pod_member: { Args: { pod: string }; Returns: boolean }
       is_role: { Args: { r: Database['public']['Enums']['user_role'] }; Returns: boolean }
+      message_body: { Args: { message_id: string }; Returns: string }
       moderator_display_names: {
         Args: { user_ids: string[] }
         Returns: {
@@ -217,10 +407,29 @@ export type Database = {
           id: string
         }[]
       }
+      my_pod_id: { Args: Record<PropertyKey, never>; Returns: string }
+      pod_roster: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar: Json
+          display_name: string
+          is_facilitator: boolean
+          user_id: string
+        }[]
+      }
+      pod_today_totals: {
+        Args: { for_day: number }
+        Returns: {
+          completed: number
+          members: number
+        }[]
+      }
+      set_whatsapp_link: { Args: { link: string }; Returns: undefined }
     }
     Enums: {
       day_kind: 'intro' | 'developmental' | 'synthesis'
       dimension: 'career' | 'character' | 'community'
+      message_kind: 'message' | 'shared_reflection' | 'pinned' | 'announcement'
       segment: 'undergrad' | 'early_career' | 'experienced_professional' | 'entrepreneur'
       user_role: 'participant' | 'moderator' | 'reviewer'
     }
@@ -338,6 +547,7 @@ export const Constants = {
     Enums: {
       day_kind: ['intro', 'developmental', 'synthesis'],
       dimension: ['career', 'character', 'community'],
+      message_kind: ['message', 'shared_reflection', 'pinned', 'announcement'],
       segment: ['undergrad', 'early_career', 'experienced_professional', 'entrepreneur'],
       user_role: ['participant', 'moderator', 'reviewer'],
     },

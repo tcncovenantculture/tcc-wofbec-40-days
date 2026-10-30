@@ -385,22 +385,44 @@ messages (id uuid pk, pod_id uuid references pods,   -- null for an all-pods ann
           created_at timestamptz default now())
 ```
 
-- [ ] Helpers: `my_pod_id()`, `is_pod_member(pod uuid)`, `is_facilitator_of(pod uuid)`, all `security definer`
-- [ ] RLS `pods`: members and moderators can select. Members can update only `whatsapp_invite_link`, and
+- [x] Helpers: `my_pod_id()`, `is_pod_member(pod uuid)`, `is_facilitator_of(pod uuid)`, all `security definer`
+- [x] RLS `pods`: members and moderators can select. Members can update only `whatsapp_invite_link`, and
       only if they're the facilitator (via RPC `set_whatsapp_link(link)`).
-- [ ] RLS `pod_members`: select rows of my own pod (display names come through a view
+- [x] RLS `pod_members`: select rows of my own pod (display names come through a view
       `pod_roster` that exposes only `display_name`, `avatar` and `is_facilitator`)
-- [ ] RLS `messages`: select where `is_pod_member(pod_id)`, or `pod_id is null` (announcements), or
+- [x] RLS `messages`: select where `is_pod_member(pod_id)`, or `pod_id is null` (announcements), or
       moderator. Hidden messages return with their body replaced by "Message hidden" through a view, unless
       the reader is a moderator. Insert where `author_id = auth.uid()` and the user is a member, with `kind` in
       (`message`, `shared_reflection`). `pinned` is facilitator-only; `announcement` is moderator-only.
       No update or delete from the client.
-- [ ] RPC `hide_message(id)`: facilitator of that pod or moderator
-- [ ] RPC `pod_today_totals()`: returns `{ members, completed_today }` for my pod with no names, plus the
+- [x] RPC `hide_message(id)`: facilitator of that pod or moderator
+- [x] RPC `pod_today_totals()`: returns `{ members, completed_today }` for my pod with no names, plus the
       same for a given day
-- [ ] pgTAP: non-members can't read a pod's messages; a member can't post as someone else; a participant
+- [x] pgTAP: non-members can't read a pod's messages; a member can't post as someone else; a participant
       can't post an announcement; totals never return user ids
-- [ ] Seed: two pods of five, a facilitator in each
+- [x] Seed: two pods of five, a facilitator in each
+
+Build notes (Oct 30):
+
+- **Hiding is access control, not just display.** `messages.body` isn't granted to the app (nor
+  `hidden_by`), so reading it directly is refused. The app reads `pod_messages`, a `security_invoker` view
+  whose body comes from `message_body(id)`: "Message hidden" once hidden, unless the reader is a moderator.
+- **`pod_roster()` is a function, not a view.** It has to read other members' profiles, and Supabase's
+  advisor flags security definer views as errors. It also returns `user_id`, so the app can put names on
+  messages; never email, phone, segment or role (pgTAP checks the result type).
+- `pod_today_totals(for_day)` takes the day number from the app, so `?asOf` works. Counts only.
+- Inserts: `author_id` isn't insertable (it defaults to `auth.uid()`), so nobody can post as someone else.
+  `id` is, so the app can retry a send with the same id without posting twice. Day threads open with their
+  day, like progress. Moderators post announcements only, not messages inside pods. A table check keeps
+  announcements (`pod_id` null) and pod messages apart; a partial unique index allows one facilitator per pod.
+- **Realtime:** `messages` is in the `supabase_realtime` publication. Checked locally: a member gets inserts
+  and updates for their own pod without `body` or `hidden_by` (Realtime sends only granted columns), and
+  someone in another pod gets nothing. So the app treats a change as a signal and refetches through
+  `pod_messages`. The channel must join with the user's token: joined as anon, Realtime rejects the
+  `pod_id` filter ("invalid column for filter").
+- Seed: Rooftop (undergrad: Ada facilitates, with Bola, Dayo, Efe, Funmi) and Lantern (early career: Gbenga
+  facilitates, with Chidi, Halima, Ife, Jide), a few Day 1 messages, one announcement, and Day 1 done for
+  Dayo, Efe and Halima. The Phase 1 RLS test now clears messages before days.
 
 ### 2.2 Pod screen (`/pod`)
 

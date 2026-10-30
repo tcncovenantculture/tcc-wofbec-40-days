@@ -1,9 +1,13 @@
 -- Local seed, applied by `supabase db reset`. Never run against staging or prod.
 --
 -- Sign in locally with any of these emails; the 6-digit code arrives in Mailpit (http://127.0.0.1:54324).
---   ada@example.com, bola@example.com, chidi@example.com   participants
---   reviewer@example.com                                     reviewer (can open /preview/1 to /preview/40)
---   moderator@example.com                                    moderator
+--   ada@example.com         Rooftop pod (undergrad), facilitator
+--   bola@example.com        Rooftop pod
+--   chidi@example.com       Lantern pod (early career)
+--   reviewer@example.com    reviewer (can open /preview/1 to /preview/40), no pod
+--   moderator@example.com   moderator, no pod
+-- Rooftop also has dayo, efe and funmi; Lantern has gbenga (its facilitator), halima, ife and jide, all
+-- @example.com. Ada and Bola can chat on two phones while Chidi, in the other pod, sees none of it.
 --
 -- Module 1 sample days are loaded with publish_at in the past, so they are open now. For the other 32
 -- sample days: pnpm content:load content/samples/module-N.json --publish-now
@@ -21,7 +25,14 @@ insert into auth.users (
   ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'bola@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Bola", "segment": "undergrad"}', now(), now()),
   ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated', 'chidi@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Chidi", "segment": "early_career"}', now(), now()),
   ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000004', 'authenticated', 'authenticated', 'reviewer@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Rev Reviewer", "segment": "experienced_professional"}', now(), now()),
-  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000005', 'authenticated', 'authenticated', 'moderator@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Mo Moderator", "segment": "experienced_professional"}', now(), now());
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000005', 'authenticated', 'authenticated', 'moderator@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Mo Moderator", "segment": "experienced_professional"}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000006', 'authenticated', 'authenticated', 'dayo@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Dayo", "segment": "undergrad"}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000007', 'authenticated', 'authenticated', 'efe@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Efe", "segment": "undergrad"}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000008', 'authenticated', 'authenticated', 'funmi@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Funmi", "segment": "undergrad"}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000009', 'authenticated', 'authenticated', 'gbenga@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Gbenga", "segment": "early_career"}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000010', 'authenticated', 'authenticated', 'halima@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Halima", "segment": "early_career"}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000011', 'authenticated', 'authenticated', 'ife@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Ife", "segment": "early_career"}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', 'a1000000-0000-4000-8000-000000000012', 'authenticated', 'authenticated', 'jide@example.com', now(), '', '', '', '', '{"provider": "email", "providers": ["email"]}', '{"display_name": "Jide", "segment": "early_career"}', now(), now());
 
 insert into auth.identities (provider_id, user_id, identity_data, provider, created_at, updated_at)
 select id::text, id, jsonb_build_object('sub', id::text, 'email', email, 'email_verified', true), 'email', now(), now()
@@ -210,3 +221,41 @@ $days$::jsonb) as d(
   scripture_text text, scripture_url text, body_md text, media jsonb, reflection_prompts text[],
   practical_action text, action_dimension public.dimension, pod_prompt text, est_minutes int, status text
 );
+
+-- Pods: two pods of five, a facilitator in each ---------------------------------------------------------
+
+insert into public.pods (id, name, segment) values
+  ('b1000000-0000-4000-8000-000000000001', 'Rooftop', 'undergrad'),
+  ('b1000000-0000-4000-8000-000000000002', 'Lantern', 'early_career');
+
+insert into public.pod_members (pod_id, user_id, is_facilitator) values
+  ('b1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', true),  -- Ada
+  ('b1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000002', false), -- Bola
+  ('b1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000006', false), -- Dayo
+  ('b1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000007', false), -- Efe
+  ('b1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000008', false), -- Funmi
+  ('b1000000-0000-4000-8000-000000000002', 'a1000000-0000-4000-8000-000000000009', true),  -- Gbenga
+  ('b1000000-0000-4000-8000-000000000002', 'a1000000-0000-4000-8000-000000000003', false), -- Chidi
+  ('b1000000-0000-4000-8000-000000000002', 'a1000000-0000-4000-8000-000000000010', false), -- Halima
+  ('b1000000-0000-4000-8000-000000000002', 'a1000000-0000-4000-8000-000000000011', false), -- Ife
+  ('b1000000-0000-4000-8000-000000000002', 'a1000000-0000-4000-8000-000000000012', false); -- Jide
+
+-- Dayo and Efe have finished Day 1, so Rooftop shows "2 of 5" on Day 1 (try /pod?asOf=2026-11-14).
+insert into public.progress (user_id, day_number) values
+  ('a1000000-0000-4000-8000-000000000006', 1),
+  ('a1000000-0000-4000-8000-000000000007', 1),
+  ('a1000000-0000-4000-8000-000000000010', 1);
+
+insert into public.messages (pod_id, day_number, author_id, kind, body, created_at) values
+  (null, null, 'a1000000-0000-4000-8000-000000000005', 'announcement',
+   'Welcome to your pod! Be kind, keep it honest, and tell a leader if anything here worries you.',
+   now() - interval '2 days'),
+  ('b1000000-0000-4000-8000-000000000001', null, 'a1000000-0000-4000-8000-000000000008', 'message',
+   'Hi everyone! Glad to be doing this with you.', now() - interval '26 hours'),
+  ('b1000000-0000-4000-8000-000000000001', 1, 'a1000000-0000-4000-8000-000000000006', 'message',
+   'The line about working for God, not for applause, stayed with me. Trying it at my internship this week.',
+   now() - interval '3 hours'),
+  ('b1000000-0000-4000-8000-000000000001', 1, 'a1000000-0000-4000-8000-000000000007', 'message',
+   'Same here. Praying for you, Dayo.', now() - interval '2 hours'),
+  ('b1000000-0000-4000-8000-000000000002', 1, 'a1000000-0000-4000-8000-000000000010', 'message',
+   'Starting today. Glad to be in this pod.', now() - interval '1 hour');

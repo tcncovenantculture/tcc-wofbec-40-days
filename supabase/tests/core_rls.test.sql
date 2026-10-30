@@ -7,6 +7,7 @@ select plan(23);
 -- Setup, as postgres ----------------------------------------------------------------------------------
 
 -- Start from no content (the seed and local loads add days). All of this is rolled back at the end.
+delete from public.messages;
 delete from public.reflections;
 delete from public.progress;
 delete from public.days;
