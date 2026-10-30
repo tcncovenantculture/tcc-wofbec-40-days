@@ -6,6 +6,11 @@ select plan(23);
 
 -- Setup, as postgres ----------------------------------------------------------------------------------
 
+-- Start from no content (the seed and local loads add days). All of this is rolled back at the end.
+delete from public.reflections;
+delete from public.progress;
+delete from public.days;
+
 -- Ada and Bola are participants, Rev is a reviewer, Mo is a moderator.
 insert into auth.users (id, email, raw_user_meta_data) values
   ('a0000000-0000-0000-0000-000000000001', 'ada@test.local',

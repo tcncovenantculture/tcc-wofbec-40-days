@@ -336,8 +336,10 @@ Build notes (Oct 30):
 
 ### 1.8 Seed
 
-- [ ] `supabase/seed.sql`: three participants, one reviewer, one moderator, and Module 1 sample days with
-      `publish_at` in the past for local testing
+- [x] `supabase/seed.sql`: three participants, one reviewer, one moderator, and Module 1 sample days with
+      `publish_at` in the past for local testing. Emails are listed at the top of the file; sign in with
+      the code from Mailpit. The RLS tests clear content inside their transaction, so they pass with the
+      seed loaded.
 
 **Acceptance (working version, Nov 1):** on a real Android phone on staging, sign up with a code, open Day 1
 (via `?asOf=2026-11-14`), finish all five steps, see Day 1 complete on home, and reopen to find the
