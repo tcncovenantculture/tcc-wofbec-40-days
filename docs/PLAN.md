@@ -329,9 +329,10 @@ Build notes (Oct 30):
 
 ### 1.7 Reviewer preview (`/preview/:n`)
 
-- [ ] Reviewers (role set by hand in Studio) can open any day, draft or future, rendered exactly as
+- [x] Reviewers (role set by hand in Studio) can open any day, draft or future, rendered exactly as
       participants will see it, with a "Preview" ribbon and a day picker. This is how the project lead reviews
-      content without an admin.
+      content without an admin. Saving answers and completing are switched off in preview, and anyone
+      without the reviewer role sees "This page is for reviewers".
 
 ### 1.8 Seed
 
