@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { podKeys } from '@/features/pods/keys'
+import { track } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 
 export const progressKeys = { all: ['progress'] as const }
@@ -31,6 +32,7 @@ export function useCompleteDay() {
       if (error) throw error
     },
     onSuccess: (_data, dayNumber) => {
+      track('day_completed', { day: dayNumber })
       queryClient.setQueryData<number[]>(progressKeys.all, (done = []) =>
         done.includes(dayNumber) ? done : [...done, dayNumber],
       )

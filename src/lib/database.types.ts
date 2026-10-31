@@ -126,6 +126,39 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database['public']['Enums']['event_name']
+          props: NonNullable<Json>
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: never
+          name: Database['public']['Enums']['event_name']
+          props?: NonNullable<Json>
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          name?: Database['public']['Enums']['event_name']
+          props?: NonNullable<Json>
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       messages: {
         Row: {
           author_id: string | null
@@ -615,6 +648,8 @@ export type Database = {
       baseline_phase: 'start' | 'end'
       day_kind: 'intro' | 'developmental' | 'synthesis'
       dimension: 'career' | 'character' | 'community'
+      event_name:
+        'day_opened' | 'day_completed' | 'pod_message_posted' | 'reflection_shared' | 'whatsapp_joined'
       message_kind: 'message' | 'shared_reflection' | 'pinned' | 'announcement'
       report_reason: 'unkind' | 'unsafe' | 'spam' | 'other'
       report_status: 'open' | 'actioned' | 'dismissed'
@@ -736,6 +771,13 @@ export const Constants = {
       baseline_phase: ['start', 'end'],
       day_kind: ['intro', 'developmental', 'synthesis'],
       dimension: ['career', 'character', 'community'],
+      event_name: [
+        'day_opened',
+        'day_completed',
+        'pod_message_posted',
+        'reflection_shared',
+        'whatsapp_joined',
+      ],
       message_kind: ['message', 'shared_reflection', 'pinned', 'announcement'],
       report_reason: ['unkind', 'unsafe', 'spam', 'other'],
       report_status: ['open', 'actioned', 'dismissed'],

@@ -10,6 +10,7 @@ import {
 import { useUserId } from '@/features/auth/use-auth'
 import { podKeys } from '@/features/pods/keys'
 import type { Enums, Tables } from '@/lib/database.types'
+import { track } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 
 // Messages are read through the pod_messages view: RLS limits rows to my pod and announcements, and a
@@ -167,6 +168,8 @@ export function useSendMessage() {
       return data.created_at
     },
     onSuccess: (createdAt, message) => {
+      if (message.kind === 'shared_reflection') track('reflection_shared', { day: message.day })
+      else track('pod_message_posted', { day: message.day, kind: message.kind })
       const sent: Message = { ...message, authorId: userId, hidden: false, createdAt }
       // Put it in the thread straight away, so it doesn't blink out between "sending" and the refetch.
       queryClient.setQueryData<ThreadData>(chatKeys.thread(message.podId, message.day), (data) => {

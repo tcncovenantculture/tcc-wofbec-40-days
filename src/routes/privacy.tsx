@@ -46,7 +46,9 @@ export default function PrivacyRoute() {
           </li>
           <li>
             <strong>As you go:</strong> your answers to each day’s questions (your reflections), which days
-            you’ve finished, and the messages you post in your pod.
+            you’ve finished, and the messages you post in your pod. The app also notes when you open or finish
+            a day, post or share in your pod, or join its WhatsApp group (never what you wrote), so the team
+            can count how the programme is going.
           </li>
           <li>
             <strong>If you choose to answer them:</strong> three short questions about where you are at the

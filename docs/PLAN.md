@@ -827,7 +827,7 @@ consented, incomplete test user and the unsubscribe link works.
       when it's on
 - [ ] **Accessibility:** axe in Playwright on every route; keyboard and screen-reader pass on the daily
       screen; contrast check on module accents (small text uses ink shades)
-- [ ] **Metrics:** `events (id, user_id, name, props jsonb, created_at)`, insert-only from the client for
+- [x] **Metrics:** `events (id, user_id, name, props jsonb, created_at)`, insert-only from the client for
       `day_opened`, `day_completed`, `pod_message_posted`, `reflection_shared`, `whatsapp_joined`. SQL views:
       sign-ups by day and segment, Day 1 and Day 8 completion, return after each module, pod participation
       (pods with at least one message per day), waiting-day pod activity. Read them in Supabase Studio; no
@@ -842,6 +842,16 @@ Build notes (Oct 31, overnight run):
   100), and CI now runs it after a build, so the visualizer wasn't added. Lazy: day, journey, pod, settings,
   mod, preview, privacy, avatar, questions, unsubscribe, sign-up and verify. CI builds with placeholder
   Supabase values: without them the build drops the Supabase client and measures about 60 kB too little.
+- **Metrics:** `events` is insert-only (the app can't read any back, even its own), limited to the five names
+  by an enum, with small `props` (`{"day": 3}`; never text) and deleted with the account. `track()` in
+  `src/lib/analytics.ts` is fire-and-forget: offline events are dropped, never retried, never shown. Called
+  when a day loads (`day_opened`), on completing (`day_completed`), on sending (`pod_message_posted` with the
+  kind, or `reflection_shared`) and on "Join on WhatsApp" (`whatsapp_joined`). The views live in an `analytics`
+  schema the API doesn't expose, so only Studio reads them: `signups_by_day`, `day_completion` (every day;
+  Day 1 and 8 included), `module_return` (finished a day in module m, then opened or finished one in m + 1),
+  `pod_participation` (pods with a message, per day), `waiting_day_activity` (Dec 24 to Jan 1) and
+  `events_by_day`. They count confirmed participants only and list no names. `/privacy` mentions the events.
+  10 pgTAP tests.
 - **Security pass:** `supabase/tests/security.test.sql` checks the whole database, so a future migration that
   slips fails it: RLS on every public table; no table or view privileges for signed-out visitors; every view
   is `security_invoker`; the only function signed-out visitors can call is `unsubscribe_reminders`; every
