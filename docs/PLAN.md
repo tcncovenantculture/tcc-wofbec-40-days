@@ -823,7 +823,7 @@ consented, incomplete test user and the unsubscribe link works.
       pod. Fix anything over 3s to interactive on repeat visits.
 - [x] **Bundle check:** initial JS at most 200 KB gzipped (`rollup-plugin-visualizer`); everything optional
       is lazy
-- [ ] **Text-only mode:** settings toggle, plus auto-on when `saveData` is set; no image or media requests
+- [x] **Text-only mode:** settings toggle, plus auto-on when `saveData` is set; no image or media requests
       when it's on
 - [ ] **Accessibility:** axe in Playwright on every route; keyboard and screen-reader pass on the daily
       screen; contrast check on module accents (small text uses ink shades). **Axe and contrast are done;**
@@ -865,6 +865,11 @@ Build notes (Oct 31, overnight run):
   local service role, as `pods:form` would), posts, and reports Dayo's message; then deletes everything it
   made. Local-only helpers are in `e2e/support/local.ts` and reuse `scripts/lib/target.ts` for the key. CI
   doesn't run Playwright (it would need Supabase); run `pnpm test:e2e` with `supabase start` going.
+- **Text-only mode** (built in Phase 1) is now proven by `e2e/text-only.spec.ts`: Day 1 is given an image, an
+  AI-generated audio clip and a YouTube video for the test. With text-only off the image is requested; with
+  it on there are no Storage, YouTube or image requests at all, and the alt text, transcripts and the
+  "AI-generated" label show instead; with Data Saver on and no choice saved, it's on by itself. Day 1's media
+  is put back afterwards.
 - **Security pass:** `supabase/tests/security.test.sql` checks the whole database, so a future migration that
   slips fails it: RLS on every public table; no table or view privileges for signed-out visitors; every view
   is `security_invoker`; the only function signed-out visitors can call is `unsubscribe_reminders`; every
