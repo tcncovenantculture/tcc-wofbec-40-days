@@ -122,12 +122,22 @@ function SignupForm() {
                     >
                       <Field orientation="horizontal" className="min-h-16">
                         <FieldContent>
-                          <FieldTitle className="text-base font-semibold">{option.label}</FieldTitle>
-                          <FieldDescription className="text-base">{option.hint}</FieldDescription>
+                          <FieldTitle
+                            id={`segment-${option.value}-label`}
+                            className="text-base font-semibold"
+                          >
+                            {option.label}
+                          </FieldTitle>
+                          <FieldDescription id={`segment-${option.value}-hint`} className="text-base">
+                            {option.hint}
+                          </FieldDescription>
                         </FieldContent>
+                        {/* The radio is a button, which screen readers don't name from a wrapping label. */}
                         <RadioGroupItem
                           value={option.value}
                           id={`segment-${option.value}`}
+                          aria-labelledby={`segment-${option.value}-label`}
+                          aria-describedby={`segment-${option.value}-hint`}
                           onBlur={field.onBlur}
                         />
                       </Field>

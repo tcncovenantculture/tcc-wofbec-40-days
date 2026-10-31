@@ -185,6 +185,13 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
 - [ ] Ask Claude (in a local session) to deploy `welcome-email` and `daily-reminder` along with
       `notify-report`. They need the same secrets (`RESEND_API_KEY`, `NOTIFY_FROM`, `SITE_URL`).
 
+## Accessibility check (by a person, before Nov 13)
+
+- [ ] On a phone with TalkBack (Android) or VoiceOver (iPhone), go through one day: the five steps, typing an
+      answer, completing it. Then the same with only a keyboard on a laptop (Tab, Enter, Space). Note anything
+      that's hard to reach or doesn't make sense read aloud. Automated checks (axe) pass on every screen, but
+      they can't judge this.
+
 ## Before Nov 8 (public sign-up)
 
 - [ ] Upgrade Resend to **Pro** ($20 a month). The free plan stops at 100 emails a day, and Youth Sunday

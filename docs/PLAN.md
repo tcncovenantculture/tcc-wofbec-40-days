@@ -826,7 +826,8 @@ consented, incomplete test user and the unsubscribe link works.
 - [ ] **Text-only mode:** settings toggle, plus auto-on when `saveData` is set; no image or media requests
       when it's on
 - [ ] **Accessibility:** axe in Playwright on every route; keyboard and screen-reader pass on the daily
-      screen; contrast check on module accents (small text uses ink shades)
+      screen; contrast check on module accents (small text uses ink shades). **Axe and contrast are done;**
+      the keyboard and screen-reader pass needs a person (docs/SETUP-TODO.md).
 - [x] **Metrics:** `events (id, user_id, name, props jsonb, created_at)`, insert-only from the client for
       `day_opened`, `day_completed`, `pod_message_posted`, `reflection_shared`, `whatsapp_joined`. SQL views:
       sign-ups by day and segment, Day 1 and Day 8 completion, return after each module, pod participation
@@ -852,6 +853,18 @@ Build notes (Oct 31, overnight run):
   `pod_participation` (pods with a message, per day), `waiting_day_activity` (Dec 24 to Jan 1) and
   `events_by_day`. They count confirmed participants only and list no names. `/privacy` mentions the events.
   10 pgTAP tests.
+- **Accessibility:** `e2e/a11y.spec.ts` runs axe (WCAG 2.1 AA) on the landing page, sign-up, sign-in,
+  privacy, unsubscribe and not-found, and, signed in locally, on home, a lesson day (Encounter and
+  Understand), the Day 8 template, My journey, the pod, settings, the avatar builder, the baseline questions
+  and `/mod`. It found one real problem, now fixed: the four segment choices on sign-up had no accessible
+  name (Radix's radio is a button, which a wrapping label doesn't name), so they now use `aria-labelledby`
+  and `aria-describedby`. `/verify` and `/preview` aren't scanned yet (they need a pending code and a reviewer).
+  Contrast is covered by `src/theme/tokens.test.ts`.
+- **End-to-end:** `e2e/journey.spec.ts` signs up a new person, verifies with the code from Mailpit, makes an
+  avatar, skips the questions, completes Day 1 (`?asOf=2026-11-14`), joins the seed's Rooftop pod (through the
+  local service role, as `pods:form` would), posts, and reports Dayo's message; then deletes everything it
+  made. Local-only helpers are in `e2e/support/local.ts` and reuse `scripts/lib/target.ts` for the key. CI
+  doesn't run Playwright (it would need Supabase); run `pnpm test:e2e` with `supabase start` going.
 - **Security pass:** `supabase/tests/security.test.sql` checks the whole database, so a future migration that
   slips fails it: RLS on every public table; no table or view privileges for signed-out visitors; every view
   is `security_invoker`; the only function signed-out visitors can call is `unsubscribe_reminders`; every
@@ -861,8 +874,9 @@ Build notes (Oct 31, overnight run):
   runs `pnpm format:check` now. Local `config.toml` has Auth rate limits; staging and prod set theirs in the
   dashboard.
 
-- [ ] **End-to-end smoke test** (Playwright, staging): sign up → verify (Mailpit locally) → avatar → home →
-      complete day → post in pod → report a message
+- [x] **End-to-end smoke test** (Playwright, staging): sign up → verify (Mailpit locally) → avatar → home →
+      complete day → post in pod → report a message. **Runs against local Supabase**; on staging the codes go
+      to real inboxes, so with `E2E_BASE_URL` set it skips and only the public-page checks run.
 - [x] **Runbook** `docs/RUNBOOK.md`: Nov 13 sequence (freeze sign-ups for 10 minutes, `pods:form` dry run,
       review CSV, `--commit`, trigger `welcome-email`, reopen); late joiners; how to load a module; how to
       hide content fast; rollback (Vercel instant rollback, migrations forward-only); who's on call Nov 13
