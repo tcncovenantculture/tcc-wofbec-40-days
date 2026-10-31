@@ -120,7 +120,7 @@ function build(choose: <T>(options: readonly T[], part: string) => T): AvatarCho
     skin: choose(skinTones, 'skin'),
     hair: choose(hairStyles, 'hair'),
     hairColour: choose(hairColours, 'hairColour'),
-    // Mostly no extras, like most people.
+    // No extras half the time.
     accessory: choose(['none', 'none', 'none', ...accessories.slice(1)] as const, 'accessory'),
     eyes: choose(eyeStyles, 'eyes'),
     mouth: choose(mouthStyles, 'mouth'),

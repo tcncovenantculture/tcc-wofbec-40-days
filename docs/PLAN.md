@@ -609,7 +609,7 @@ Build notes (Oct 31, overnight run):
 - **A friendly subset only:** three cheerful eye styles and four smiles (no sad, angry or "starstruck" faces);
   extras are none, glasses, sunglasses or a moustache (no clown nose, sleep mask, cat ears or the cartoon
   crown); hair colours are the style's four natural ones. "Surprise me" picks from the same subset, with no
-  extras three times out of five.
+  extras half the time.
 - **Builder** (`/avatar`, lazy, no bottom nav): a big preview with the person's name, then rows for skin,
   hair, hair colour, extras and background, each option drawn as the avatar would look with it. Each row
   scrolls sideways and opens centred on the current choice. Nothing saves until "Save my avatar".

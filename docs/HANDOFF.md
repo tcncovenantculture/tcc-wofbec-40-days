@@ -1,4 +1,79 @@
-# Handoff: where the build stands (Oct 30, 2026)
+# Handoff: where the build stands (Oct 31, 2026)
+
+## Overnight run (Oct 30 to 31): read this first
+
+Run unattended in a Claude Code cloud session, following `docs/OVERNIGHT.md`. **GitHub refused every push from
+that session** ("Claude doesn't have GitHub access to tcncovenantculture/tcc-wofbec-40-days for your
+organization"; reading worked, writing didn't, through git and the API alike). So the commits are **not on
+GitHub**: they were sent into the session's chat as `overnight-branch.bundle`. To get them:
+
+```bash
+git fetch ~/Downloads/overnight-branch.bundle claude/friendly-brown-wshsam:overnight/2026-10-31
+git log --oneline main..overnight/2026-10-31
+```
+
+To let future cloud sessions push: install the Claude GitHub App on the organisation (an org owner does it at
+https://github.com/apps/claude/installations/select_target) or reconnect GitHub in claude.ai settings.
+
+**Done** (one commit each, PLAN.md ticked, build notes under each section):
+
+1. **3.2 Privacy and consent:** `/privacy` (draft for the NDPA check; contact email is a placeholder),
+   `privacy_accepted_at` recorded at sign-up, Settings rebuilt (reminder consent, delete account through
+   `delete_my_account()`). Also fixed: sign-out now removes the saved offline cache at once.
+2. **3.3 Avatars:** DiceBear **Big Smile** (CC BY 4.0, credited on `/privacy` and under the builder), builder at
+   `/avatar` offered once after first sign-in, Surprise me and Skip, `<UserAvatar>` in the pod header and chat.
+3. **4.4 My journey:** finished days by module, answers read-only with edit and share.
+4. **4.2 Pod formation:** `pnpm pods:form` (dry run CSV, `--commit` in one transaction, `--late`), packing
+   tests for 1 to 23 people.
+5. **3.4 Baseline questions** with **sample wording** ("Sample: …"), `/questions` after the avatar step.
+6. **4.3 Emails:** `welcome-email`, `daily-reminder` (pg_cron at 06:30 Lagos), `/unsubscribe` without signing in.
+7. **Phase 5:** security checks (pgTAP over the whole database, `pnpm check:bundle`, more CI), the runbook
+   (`docs/RUNBOOK.md`), usage metrics (`events` and an `analytics` schema for Studio), the end-to-end smoke
+   test, axe on every screen (it found and I fixed unlabelled segment choices on sign-up), and a text-only test.
+
+**Verified locally** in the cloud container (Docker and Node 24 started by hand): typecheck, lint, format,
+189 Vitest, 171 pgTAP, 13 Playwright, `pnpm size` (landing 91.4 of 100 kB, app 186.1 of 200 kB), bundle scan,
+and browser runs of every new screen. **Not verified:**
+- **Nothing touched staging.** Five new migrations wait for `db push`: privacy_and_account, form_pods,
+  baseline_responses, emails (turns on pg_cron and pg_net, schedules the 06:30 job) and metrics. pg_cron and
+  Vault were only tried locally.
+- The **edge functions** ran with Deno on the host, not inside `supabase start`'s container: in the sandbox
+  that container couldn't download npm packages (proxy certificate). On your Mac they should serve as before;
+  worth one local run of each (`curl -X POST http://127.0.0.1:54321/functions/v1/welcome-email`).
+- Playwright ran on the sandbox's older Chromium build, not the one `@playwright/test` 1.64 pins.
+
+**Check first:**
+1. Fetch the bundle (above), then `supabase db reset && supabase test db && pnpm test && pnpm test:e2e`.
+2. Sign up locally with a new email: avatar → questions → home. Then Settings → delete the account.
+3. Read `/privacy` and the email wording (`supabase/functions/_shared/welcome-email.ts`, `reminder-email.ts`).
+
+**Decisions to confirm** (details in PLAN.md build notes):
+- **Pod packing:** r = 3 makes two pods of 4 (the plan's "one pod of 3" breaks its own 4-to-6 rule), and seven
+  people make a 6 plus one placed by hand.
+- **Avatars:** Big Smile, with only cheerful faces and sensible extras offered. A "Change your avatar" row in
+  Settings (the plan doesn't list it, but the builder needs a way back in). Anyone with no avatar is sent to
+  the builder once, so **staging testers will see it next time they open the app**.
+- **Privacy notice:** names Supabase (London), Vercel and Resend; deletion by 2 April 2027; mentions the
+  Nigeria Data Protection Commission. Needs the contact email and the human NDPA review.
+- **Welcome email** goes to everyone in a pod (it's the one service email the notice mentions) and has a line
+  for the facilitator. **Reminders** skip waiting days, rotate four wordings, and only go out 06:00 to 12:00.
+  Once deployed, **staging testers who ticked reminders will get them** from Nov 14.
+- **The email functions take no key**, like `notify-report`: each person is claimed in the database before
+  sending, so extra calls can't send twice.
+- **Metrics** are tied to the user id (deleted with the account); `/privacy` says so.
+- **Deleting an account** keeps the person's messages as "Former member". If a facilitator leaves, the pod has
+  none until someone sets one in Studio.
+
+**New by-hand steps** are in `docs/SETUP-TODO.md` (privacy contact and NDPA check, baseline wording, emails
+setup including the Vault secret, accessibility pass, on-call names, prod rate limits).
+
+**Cloud sessions, for next time:** the environment's setup script failed (exit 1) because corepack fetched
+pnpm 12.16.1, whose package layout corepack can't run. In this repo corepack uses the pinned `pnpm@11.4.0`, so
+run `corepack enable` and `pnpm install` from inside the repo (or `corepack prepare pnpm@11.4.0 --activate`)
+in the environment's setup script. The container also has Node 22 only (`nvm install 24` for `pnpm size` and the
+scripts) and Docker installed but not running (start `dockerd` before `supabase start`).
+
+---
 
 For a new Claude Code session in `~/Documents/covenant-40-day`. Read this file, then `CLAUDE.md` (project
 rules, auto-loaded) and `docs/PLAN.md` (phase plan: ticked tasks plus "Build notes" under each section, which
@@ -19,11 +94,13 @@ current state and what to do next. Update it at the end of each session.
   is done.** **4.1 reports and moderation is done** (pulled forward so it exists before sign-up opens on
   Nov 8): reporting, the facilitator's notice, `/mod`, and the `notify-report` email, checked locally via
   Mailpit. On staging the migration is applied, but the function isn't deployed and the webhook and secrets
-  aren't set (user steps in SETUP-TODO). Remaining order: 3.2, 3.3, 4.4, 4.2, 3.4 (sample wording), 4.3,
-  then Phase 5. 3.5 needs Resend. **`docs/OVERNIGHT.md` has the instructions for an unattended run.**
-- Checks: typecheck, lint, 136 Vitest tests, 75 pgTAP tests, the Playwright smoke test and `pnpm size` pass.
-  The landing page is **91.8 kB as served** (budget 100); the signed-in app's JS is **184.9 kB gzipped**
-  (budget 200). `/pod` is a lazy 21 kB chunk, like the other screens.
+  aren't set (user steps in SETUP-TODO). The rest of Phases 3 and 4 was built overnight (next bullet).
+- **Overnight Oct 30 to 31** (section above): 3.2, 3.3, 3.4 (sample wording), 4.2, 4.3, 4.4 and the Phase 5
+  items that need no staging or phones. Left: 3.5 (needs Resend and staging), the NDPA review, low-end phone QA,
+  the keyboard and screen-reader pass, prod rate limits, and the Nov 12 final check.
+- Checks: typecheck, lint, format, 189 Vitest, 171 pgTAP, 13 Playwright tests, `pnpm size` and
+  `pnpm check:bundle` pass. The landing page is **91.4 kB as served** (budget 100); the signed-in app's JS is
+  **186.1 kB gzipped** (budget 200). DiceBear is a 23 kB lazy chunk shared by `/pod` and `/avatar`.
 - **Staging** is linked and has all seven migrations and the 40 sample days (loaded with `--publish-now`, so
   testers can open any day with `?asOf`), but **no pods**: the seed is local only. `pnpm pods:test --target
   staging --name "…" email…` puts testers in a pod.
@@ -47,13 +124,13 @@ current state and what to do next. Update it at the end of each session.
    dashboard steps, testers signing up, then test pods (`pnpm pods:test`; the user may send the emails for
    Claude to run it). If either test turns up bugs, fix them before starting Phase 3.
 
-## Next: 3.2 privacy and consent, then the order in docs/OVERNIGHT.md
+## Next
 
-Follow `docs/OVERNIGHT.md` (written for an unattended run, but the order and rules apply to any session).
-In a local session with the user, also deploy `notify-report` to staging when asked
-(`pnpm exec supabase functions deploy notify-report`). Things to know:
-- 3.3 avatars: choosing the DiceBear style (and checking its licence) also decides whether it replaces the
-  initials avatars in the pod header and the drawn pod picture (`src/features/pods/pod-picture.ts`).
+1. Get the overnight commits onto GitHub (bundle above), review, and merge.
+2. With the user: push the five new migrations to staging (dry run first), set the Vault secret
+   `project_url`, and deploy `notify-report`, `welcome-email` and `daily-reminder`
+   (`pnpm exec supabase functions deploy <name>`). Then the staging walkthroughs.
+3. 3.5 once Resend works; then the remaining Phase 5 checks with the user (phones, NDPA, rate limits).
 - Production Supabase (a separate Pro org) and Resend Pro are needed before Nov 8.
 
 ## Accounts
@@ -178,6 +255,13 @@ In a local session with the user, also deploy `notify-report` to staging when as
 
 ## Watch out for
 
+- **End-to-end tests need local Supabase** (`supabase start`): the smoke test, the signed-in axe scans and the
+  text-only test sign in with codes from Mailpit and use the local service role (through
+  `scripts/lib/target.ts`) to set up and clean up. With `E2E_BASE_URL` set they skip; the public axe scans
+  still run.
+- **The avatar step:** home sends anyone whose `profiles.avatar` is null to `/avatar?setup=1`, once per tab
+  session. Test accounts made by hand (Studio, SQL) will hit it; the seed gives everyone but Funmi an avatar.
+
 - **Size budgets.** Run `pnpm build && pnpm size` after every feature. The signed-in app's JS is 184.9 kB
   gzipped of 200 (React DOM and the Supabase client are most of it). The landing page is 91.8 kB as served of
   100, with little room: anything `main.tsx`, `landing.tsx`, `error-boundary.tsx`, `load-failed.tsx` or
@@ -212,3 +296,4 @@ In a local session with the user, also deploy `notify-report` to staging when as
 - From the plan: moderator names (by Nov 7), whether reports also go to moderators, baseline question
   wording (by Nov 5), data retention period
 - A contact email for the privacy notice (3.2); it could be the same church inbox as the reply-to
+- The overnight decisions listed at the top of this file
