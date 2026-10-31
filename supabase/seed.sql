@@ -285,6 +285,10 @@ insert into public.messages (pod_id, day_number, author_id, kind, body, created_
 
 create extension if not exists pg_net;
 
+-- Local only: where the daily-reminder cron job (see the emails migration) finds the edge functions. On
+-- staging and prod this Vault secret is the project's URL, set by hand (docs/SETUP-TODO.md).
+select vault.create_secret('http://kong:8000', 'project_url');
+
 create trigger notify_report
 after insert on public.reports
 for each row

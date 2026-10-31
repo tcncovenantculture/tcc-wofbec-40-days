@@ -170,6 +170,21 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
       what 1 and 5 should mean. Send it to Claude, or put it in `src/features/baseline/questions.ts` in place
       of the "Sample:" questions.
 
+## Emails: welcome and morning reminders (built Oct 31, overnight)
+
+- [ ] Read the wording: `supabase/functions/_shared/welcome-email.ts` and `reminder-email.ts` (or run them
+      locally and look in Mailpit). Pastor Yemi or the project lead may want to change it.
+- [ ] Ask the project lead: should waiting days (Dec 24 to Jan 1) get a gentle "your pod is still open"
+      email? Built without one, as the plan says.
+- [ ] Pick the church inbox for replies, then add the secret `REPLY_TO` = that address (Edge Functions →
+      Secrets) on staging and prod.
+- [ ] After the next `supabase db push` to staging (the emails migration turns on pg_cron and pg_net), in the
+      SQL editor run, with your project's URL:
+      `select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');`
+      Without it the 06:30 job does nothing. Do the same on prod.
+- [ ] Ask Claude (in a local session) to deploy `welcome-email` and `daily-reminder` along with
+      `notify-report`. They need the same secrets (`RESEND_API_KEY`, `NOTIFY_FROM`, `SITE_URL`).
+
 ## Before Nov 8 (public sign-up)
 
 - [ ] Upgrade Resend to **Pro** ($20 a month). The free plan stops at 100 emails a day, and Youth Sunday

@@ -264,11 +264,13 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          last_reminded_on: string | null
           privacy_accepted_at: string | null
           reminder_email: boolean
           role: Database['public']['Enums']['user_role']
           segment: Database['public']['Enums']['segment']
           unsubscribe_token: string
+          welcome_sent_at: string | null
           whatsapp_number: string | null
         }
         ComputedFields: never
@@ -278,11 +280,13 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          last_reminded_on?: string | null
           privacy_accepted_at?: string | null
           reminder_email?: boolean
           role?: Database['public']['Enums']['user_role']
           segment: Database['public']['Enums']['segment']
           unsubscribe_token?: string
+          welcome_sent_at?: string | null
           whatsapp_number?: string | null
         }
         Update: {
@@ -291,11 +295,13 @@ export type Database = {
           display_name?: string
           email?: string
           id?: string
+          last_reminded_on?: string | null
           privacy_accepted_at?: string | null
           reminder_email?: boolean
           role?: Database['public']['Enums']['user_role']
           segment?: Database['public']['Enums']['segment']
           unsubscribe_token?: string
+          welcome_sent_at?: string | null
           whatsapp_number?: string | null
         }
         Relationships: []
@@ -506,6 +512,29 @@ export type Database = {
       }
     }
     Functions: {
+      claim_daily_reminders: {
+        Args: { at?: string }
+        Returns: {
+          day_number: number
+          display_name: string
+          email: string
+          est_minutes: number
+          title: string
+          unsubscribe_token: string
+          user_id: string
+        }[]
+      }
+      claim_welcome_emails: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          display_name: string
+          email: string
+          is_facilitator: boolean
+          pod_mates: string[]
+          pod_name: string
+          user_id: string
+        }[]
+      }
       delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined }
       form_pods: { Args: { joiners?: Json; new_pods?: Json }; Returns: undefined }
       hide_message: { Args: { message_id: string }; Returns: undefined }
@@ -580,6 +609,7 @@ export type Database = {
       }
       resolve_reports: { Args: { message_id: string; outcome: string }; Returns: undefined }
       set_whatsapp_link: { Args: { link: string }; Returns: undefined }
+      unsubscribe_reminders: { Args: { token: string }; Returns: boolean }
     }
     Enums: {
       baseline_phase: 'start' | 'end'

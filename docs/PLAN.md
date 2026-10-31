@@ -750,13 +750,48 @@ Build notes (Oct 31, overnight run):
 
 ### 4.3 Emails
 
-- [ ] Edge function `welcome-email`, run once on Nov 13 after pods are formed: your pod's name, members'
+- [x] Edge function `welcome-email`, run once on Nov 13 after pods are formed: your pod's name, members'
       first names, Day 1 is tomorrow, link to the app
-- [ ] Edge function `daily-reminder` scheduled by pg_cron at 06:30 WAT: only users with
+- [x] Edge function `daily-reminder` scheduled by pg_cron at 06:30 WAT: only users with
       `reminder_email = true` who haven't completed today's day; encouraging copy, varied across a few
       templates; an unsubscribe link using `unsubscribe_token` that works without signing in. Batched sends;
       skip on waiting days unless the project lead wants a pod nudge.
-- [ ] Copy review: no shame, no counts of missed days
+- [x] Copy review: no shame, no counts of missed days
+
+Build notes (Oct 31, overnight run):
+
+- **Who gets what is decided in SQL, and claimed as it's picked.** `claim_welcome_emails()` and
+  `claim_daily_reminders(at)` (service role only) mark each person (`profiles.welcome_sent_at`,
+  `profiles.last_reminded_on`) in the same statement that selects them. So the functions need no key
+  (`verify_jwt = false`, like `notify-report`): any number of calls, from anyone, sends each person one welcome
+  and at most one reminder a day. If sending fails, whoever wasn't emailed is released for the next call.
+- **Welcome:** everyone in a pod with a confirmed email. Pod name, the others' first names (facilitator first),
+  and a line that fits the day it's sent ("Day 1 opens tomorrow" on Nov 13; for late joiners, "start with
+  Day 1 whenever you're ready"). The facilitator gets one extra paragraph saying what that means and that
+  nothing extra is expected. Run it after `pods:form --commit`, and again after each `--late --commit`: it
+  only emails people not yet welcomed. It goes to everyone in a pod, not only those who chose reminders: it's
+  the one service email the privacy notice mentions.
+- **Reminder:** pg_cron job `daily-reminder` at 05:30 UTC (06:30 in Lagos, which has no daylight saving)
+  calls the function through `pg_net`, reading the project URL from the Vault secret `project_url` (set by hand
+  on staging and prod; the seed sets it locally). It reminds people who asked, confirmed their email and haven't
+  done today's day; nothing before Day 1, on waiting days (41 onwards) or if today's day isn't published. The
+  function refuses outside 06:00 to 12:00 Lagos, so nobody can set reminders off at night; locally
+  `ALLOW_AS_OF` lets the body pick the time.
+- **Copy:** four wordings rotating by day and person (`_shared/reminder-email.ts`): the day's title and
+  minutes, a gentle line, a button to the day. A Vitest test fails if any wording mentions missing, being
+  behind, streaks, catching up or counts of days. The small print says why they're getting it and links to
+  unsubscribe; a `List-Unsubscribe` header lets mail apps show their own link.
+- **Unsubscribe:** `/unsubscribe?token=…` works signed out and turns reminders off only when "Stop reminder
+  emails" is tapped (some email services open every link to scan it). `unsubscribe_reminders(token)` is the
+  only function anon can call.
+- **Sending:** `_shared/send-email.ts` (Resend batches of 100 with a pause between, else Mailpit, else log),
+  now also used by `notify-report`. `REPLY_TO`, if set, is where replies go.
+- 14 pgTAP tests, 14 Vitest tests for the templates. **Checked locally** with Mailpit: 10 welcomes once, a
+  second call sends none; reminders on Day 1 go only to people who chose them and haven't done it, none twice,
+  none on a waiting day or at night; `notify-report` still emails moderators once. In this cloud sandbox the
+  edge-runtime container couldn't download `npm:@supabase/supabase-js` (the sandbox's proxy certificate), so
+  the functions were run with Deno 2.9 on the host against the local database and Mailpit. On a normal machine
+  `supabase start` serves them as before.
 
 ### 4.4 My journey (`/journey`)
 

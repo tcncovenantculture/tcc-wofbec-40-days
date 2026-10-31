@@ -26,3 +26,17 @@ export function useSetReminderEmail() {
     onSettled: () => void queryClient.invalidateQueries({ queryKey: profileKey }),
   })
 }
+
+/**
+ * The unsubscribe link from a reminder email: turns reminders off for the token's owner without signing in.
+ * Resolves true if the token matched someone.
+ */
+export function useUnsubscribe() {
+  return useMutation({
+    mutationFn: async (token: string) => {
+      const { data, error } = await supabase.rpc('unsubscribe_reminders', { token })
+      if (error) throw error
+      return data
+    },
+  })
+}
