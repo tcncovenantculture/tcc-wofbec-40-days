@@ -853,10 +853,11 @@ Build notes (Oct 31, overnight run):
 
 - [ ] **End-to-end smoke test** (Playwright, staging): sign up → verify (Mailpit locally) → avatar → home →
       complete day → post in pod → report a message
-- [ ] **Runbook** `docs/RUNBOOK.md`: Nov 13 sequence (freeze sign-ups for 10 minutes, `pods:form` dry run,
+- [x] **Runbook** `docs/RUNBOOK.md`: Nov 13 sequence (freeze sign-ups for 10 minutes, `pods:form` dry run,
       review CSV, `--commit`, trigger `welcome-email`, reopen); late joiners; how to load a module; how to
       hide content fast; rollback (Vercel instant rollback, migrations forward-only); who's on call Nov 13
-      and 14
+      and 14. **The on-call names are placeholders** until the user sends them. It also covers the morning
+      reminder check and a short "if something's wrong" table.
 - [ ] Nov 12 final check against the brief's "Needed for Nov 13" list
 
 **Launch (Nov 13):** run the runbook.

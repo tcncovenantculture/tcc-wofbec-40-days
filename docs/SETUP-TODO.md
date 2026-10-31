@@ -196,6 +196,7 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
       SMTP settings, a higher email rate limit, and Vercel Production pointed at it
 
 ## Things to get from the church
+- [ ] Who's on call on Nov 13 and Nov 14, and a backup for each (for `docs/RUNBOOK.md`)
 
 - [ ] Real Module 1 content (it replaces the samples; Claude loads it)
 - [ ] Original logo file (SVG, or a PNG at least 1024px wide)
