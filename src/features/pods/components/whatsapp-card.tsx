@@ -2,6 +2,7 @@ import { Download, ExternalLink, MessageCircle } from 'lucide-react'
 import { useEffect, useId, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { track } from '@/lib/analytics'
 import { useSetWhatsAppLink, type MyPod } from '../api'
 import { podPicture, savePodPicture } from '../pod-picture'
 import { extractInviteLink } from '../whatsapp'
@@ -25,7 +26,7 @@ function JoinCard({ link }: { link: string }) {
           <p className="font-semibold">Before you join</p>
           <p>{NOTICE}</p>
           <Button asChild size="lg">
-            <a href={link} target="_blank" rel="noopener noreferrer">
+            <a href={link} target="_blank" rel="noopener noreferrer" onClick={() => track('whatsapp_joined')}>
               Join on WhatsApp
               <ExternalLink aria-hidden="true" />
             </a>

@@ -1,5 +1,5 @@
 import { Lock } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { useParams } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,6 +8,7 @@ import { BackToToday } from '@/features/days/components/day-parts'
 import { LessonDay } from '@/features/days/components/lesson-day'
 import { SynthesisDay } from '@/features/days/components/synthesis-day'
 import { useProgrammeDay } from '@/features/days/use-programme'
+import { track } from '@/lib/analytics'
 import { formatInLagos, LESSON_DAYS, moduleFor, publishAtFor, unlockedThrough } from '@/lib/programme'
 import NotFoundRoute from './not-found'
 
@@ -27,6 +28,10 @@ function DayScreen({ dayNumber }: { dayNumber: number }) {
 
 function OpenDay({ dayNumber }: { dayNumber: number }) {
   const day = useDay(dayNumber)
+  const opened = day.data?.day_number
+  useEffect(() => {
+    if (opened) track('day_opened', { day: opened })
+  }, [opened])
 
   if (day.isPending) {
     return day.fetchStatus === 'paused' ? (

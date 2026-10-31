@@ -12,6 +12,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "size": "node scripts/check-size.ts",
+    "check:bundle": "node scripts/check-bundle.ts",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -22,12 +23,15 @@
     "db:types": "supabase gen types typescript --local > src/lib/database.types.ts && prettier --write src/lib/database.types.ts",
     "content:load": "node scripts/load-content.ts",
     "media:compress": "node scripts/compress-media.ts",
+    "pods:form": "node scripts/form-pods.ts",
     "pods:test": "node scripts/test-pod.ts",
     "icons": "pwa-assets-generator",
     "og:image": "node scripts/og-image.ts"
   },
   "dependencies": {
     "@date-fns/tz": "1.5.0",
+    "@dicebear/big-smile": "9.4.2",
+    "@dicebear/core": "9.4.2",
     "@fontsource/barlow-condensed": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
     "@hookform/resolvers": "^6.0.2",
@@ -51,6 +55,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",

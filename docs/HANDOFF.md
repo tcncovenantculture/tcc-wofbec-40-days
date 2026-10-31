@@ -1,4 +1,142 @@
-# Handoff: where the build stands (Oct 30, 2026)
+# Handoff: where the build stands (Oct 31, 2026)
+
+## Overnight run (Oct 30 to 31): read this first
+
+Run unattended in a Claude Code cloud session, following `docs/OVERNIGHT.md`. Everything is on the branch
+**`claude/friendly-brown-wshsam`** (pull request #1), 14 commits on top of `main`; the last one brings this
+section in line with the review summary. GitHub refused pushes during the night until the Claude GitHub App was
+installed on the organisation the next morning; the branch is pushed and matches the local copy.
+
+### What was built (one commit per task, PLAN.md ticked, build notes under each section)
+
+1. **3.2 Privacy and consent** (`eb2f264`): `/privacy` (a draft: contact email is a placeholder, NDPA check
+   pending), `profiles.privacy_accepted_at` set at sign-up, Settings rebuilt (reminder consent; delete account
+   through `delete_my_account()`, messages stay as "Former member"). Bug fixed on the way: sign-out now removes
+   the saved offline cache at once instead of up to a second later.
+2. **3.3 Avatars** (`ed453ad`): DiceBear **Big Smile** (CC BY 4.0, credited on `/privacy` and under the builder),
+   builder at `/avatar` offered once after first sign-in, Surprise me and Skip, `<UserAvatar>` in the pod header
+   and beside other people's messages. The initials avatar is gone.
+3. **4.4 My journey** (`c93ad92`): finished days grouped by module; answers read-only, with edit and share.
+4. **4.2 Pod formation** (`5701b34`): `pnpm pods:form` (dry-run CSV, `--commit` in one transaction through
+   `form_pods()`, `--late`), packing tests for every size from 1 to 23.
+5. **3.4 Baseline questions** (`c397bc8`): `/questions` after the avatar step, **sample wording** ("Sample: …"),
+   `baseline_responses` table.
+6. **4.3 Emails** (`45a5845`): `welcome-email`, `daily-reminder` (pg_cron at 06:30 Lagos), `/unsubscribe`
+   without signing in, a shared sender also used by `notify-report`.
+7. **Phase 5**: security checks and CI (`0e236ce`), `docs/RUNBOOK.md` (`d643e27`), usage metrics (`e1c5719`),
+   the end-to-end smoke test and axe scans (`e6f3be7`; axe found unlabelled segment choices on sign-up, fixed),
+   and a text-only test (`6f94d3e`). Then the handoff and checklist (`4aa51d4`, `b0086f5`, this commit).
+
+### Checks run
+
+- **Locally in the cloud container** (Node 24.22, pnpm 11.4, Docker and `supabase start` started by hand), all
+  passing: `pnpm typecheck`, `pnpm lint`, `pnpm test` (189 tests), `pnpm format:check`, `supabase test db`
+  (171 pgTAP tests in 10 files, against the real local Postgres after `supabase db reset`), `pnpm build`,
+  `pnpm size` (landing page 91.4 of 100 kB as served, signed-in app 186.1 of 200 kB gzipped),
+  `pnpm check:bundle` (no secrets; it also caught keys planted on purpose), and 13 Playwright tests (landing
+  smoke, 8 axe scans, the end-to-end journey, 3 text-only tests). Every new screen was also clicked through in a
+  headless phone browser, and the edge functions were run against the local database and Mailpit.
+- **GitHub CI on `b0086f5`**: passed, on push and on the pull request (typecheck, lint, test, format check,
+  build, size, bundle scan). The Vercel preview check passed too.
+
+### Not verified, and why
+
+- **Database tests** passed locally only. Nothing touched staging (OVERNIGHT.md forbids it), so the five new
+  migrations haven't been pushed: privacy_and_account, form_pods, baseline_responses, emails and metrics. The
+  emails migration turns on pg_cron (`with schema pg_catalog`) and pg_net and schedules the 06:30 job, and the
+  job reads a Vault secret: all of that has only run on local Supabase, not hosted. CI doesn't run pgTAP.
+- **`pnpm size`** is verified (locally and in CI). One trap found: built without the Supabase env vars, the app
+  measures about 60 kB too small because the client is dropped, so CI builds with placeholder values.
+- **Playwright**: `pnpm test:e2e` as configured fails in the sandbox, because `@playwright/test` 1.64 wants a
+  Chromium build that isn't installed there. The same 13 tests passed through a scratch config (not committed)
+  pointing at the sandbox's older Chromium. So they haven't run with the pinned browser, on a real phone, in CI,
+  or against staging (the signed-in tests need local Supabase and skip when `E2E_BASE_URL` is set).
+- **Edge functions** didn't run inside `supabase start`'s container, which couldn't download
+  `npm:@supabase/supabase-js` through the sandbox's proxy certificate. They ran with Deno 2.9 on the host instead
+  (the runtime matches Deno 2.1). Only the Mailpit path was used: the Resend path (batches, `reply_to`,
+  `List-Unsubscribe`) has never sent a real email. Nothing is deployed.
+- `pods:form` has only run against local data. No low-end phone QA, screen-reader or keyboard pass.
+
+### Decisions to confirm
+
+- **Pod packing:** 3 left over makes two pods of 4, and 7 in a segment makes a 6 plus one person placed by hand
+  (see "Different from the plan").
+- **Avatars:** Big Smile for its range (8 skin tones, braids, fro bun, curly cuts). Only cheerful eyes and
+  smiles, natural hair colours, and extras limited to glasses, sunglasses and a moustache (no clown nose, sleep
+  mask, cat ears or cartoon crown). Anyone with no avatar is sent to the builder once.
+- **Privacy notice:** names Supabase (London), Vercel and Resend; deletion by 2 April 2027; rights and the
+  Nigeria Data Protection Commission; avatar credit. `privacy_accepted_at` is recorded but not required by the
+  database, so accounts made before it have none.
+- **Baseline intro** says only the project team sees the answers, as totals.
+- **Welcome email** goes to everyone in a pod with a confirmed email, with a paragraph for the facilitator.
+  **Reminders** skip waiting days, rotate four wordings and only go out between 06:00 and 12:00 Lagos.
+  **Unsubscribing** needs a tap, because email scanners open links.
+- **The email functions take no key**, like `notify-report`: each person is claimed in the database before
+  sending, so extra calls can't send twice.
+- **Metrics** are tied to the user id (deleted with the account); `/privacy` says so.
+- **Deleting an account** keeps the person's messages as "Former member".
+
+### Different from docs/PLAN.md
+
+- **4.2:** r = 3 makes two pods of 4, not "one pod of that size" (a pod of 3 breaks the plan's 4-to-6 rule).
+  Seven people, which the rule doesn't cover, make a 6 plus one placed by hand. Pod names are one word from the
+  list, unique, without the segment (it's stored on the pod and in the CSV). The CSV adds an email column.
+- **3.3:** an extra "Hair colour" row; "outfit or accessory" is "Extras" (Big Smile has no outfits). "After
+  verify" is done by home sending anyone without an avatar to the builder, once per tab session. Settings got a
+  "Change your avatar" row the plan doesn't list. The avatar shows beside other people's messages, not your own.
+  The WhatsApp pod picture stays the drawn letter. The pod scene (stretch) wasn't built.
+- **3.4:** the form uses plain React state, not react-hook-form and zod as CLAUDE.md's conventions say (four
+  optional fields, nothing to validate beyond the database checks).
+- **4.3:** the welcome email's wording follows the day it's sent ("Day 1 opens tomorrow" only on Nov 13) and
+  adds the facilitator paragraph; reminders have the 06:00 to 12:00 window and a `List-Unsubscribe` header.
+- **Phase 5:** the bundle check uses `pnpm size` in CI, not `rollup-plugin-visualizer`. The smoke test runs
+  locally, not on staging. The metrics views live in an `analytics` schema the API doesn't expose. The security
+  pass (rate limits) and accessibility (person's pass) stay unticked.
+- **Not in the plan, added:** the sign-out cache fix; CI runs format, build, size and `pnpm check:bundle`; a
+  database-wide `security.test.sql`; seed users get avatars (all but Funmi); `RouteStub` removed; the runbook's
+  morning check and troubleshooting table.
+
+### New in docs/SETUP-TODO.md
+
+- Privacy notice: choose the contact email; NDPA check; confirm the 90-day retention; check prod is in London.
+- Baseline questions: the real wording from the project lead.
+- Emails: read the wording; ask whether waiting days should get an email; pick the reply-to inbox and set
+  `REPLY_TO`; after `db push`, create the Vault secret `project_url` on staging and prod; deploy
+  `welcome-email` and `daily-reminder`.
+- Accessibility: a TalkBack or VoiceOver pass and a keyboard pass through one day.
+- Before Nov 8: check prod's Auth rate limits for a Youth Sunday rush.
+- From the church: who's on call on Nov 13 and 14, with backups.
+
+### Known problems and risks
+
+- **Staging testers** will be sent to the avatar builder once. After the functions are deployed, testers who
+  ticked reminders get them from Nov 14, and a call to `welcome-email` welcomes everyone in a staging test pod.
+- **The emails migration might fail on hosted Supabase** at `create extension pg_cron` if the project doesn't
+  allow it; then turn pg_cron on in the dashboard and push again. Without the Vault secret the 06:30 job does
+  nothing, and the only sign is in `cron.job_run_details`.
+- **Keyless functions:** anyone can call `welcome-email` (it only welcomes pod members not yet welcomed) or
+  `daily-reminder` (only 06:00 to 12:00, once a day per person). Low risk, but deliberate.
+- **Pod formation on Nov 13:** the commit must use the dry run's seed with sign-ups frozen, or the pods differ
+  from the reviewed CSV. Small segments, and the odd one of seven, need placing by hand.
+- A facilitator who deletes their account leaves the pod without one until someone sets it in Studio.
+- Headroom: the signed-in app is 13.9 kB under its budget, the landing page 8.6 kB.
+- `/verify` and `/preview` aren't axe-scanned.
+- The e2e tests change local data (a test user, Day 1's media) and clean up afterwards; a run killed halfway can
+  leave them behind (`supabase db reset` fixes it).
+
+### Cloud sessions, for next time
+
+The environment's setup script failed (exit 1) because corepack fetched pnpm 12.16.1, whose package layout
+corepack can't run. In this repo corepack uses the pinned `pnpm@11.4.0`, so run `corepack enable` and
+`pnpm install` from inside the repo (or `corepack prepare pnpm@11.4.0 --activate`) in the environment's setup
+script. The container also has Node 22 only (`nvm install 24` for `pnpm size` and the scripts), Docker installed
+but not running (start `dockerd` before `supabase start`), and an older Chromium than Playwright pins.
+
+**Check first:** check out the branch, run `supabase db reset && supabase test db && pnpm test && pnpm test:e2e`,
+sign up locally with a new email (avatar → questions → home → Settings → delete), and read `/privacy` and the
+email wording (`supabase/functions/_shared/welcome-email.ts`, `reminder-email.ts`).
+
+---
 
 For a new Claude Code session in `~/Documents/covenant-40-day`. Read this file, then `CLAUDE.md` (project
 rules, auto-loaded) and `docs/PLAN.md` (phase plan: ticked tasks plus "Build notes" under each section, which
@@ -19,11 +157,13 @@ current state and what to do next. Update it at the end of each session.
   is done.** **4.1 reports and moderation is done** (pulled forward so it exists before sign-up opens on
   Nov 8): reporting, the facilitator's notice, `/mod`, and the `notify-report` email, checked locally via
   Mailpit. On staging the migration is applied, but the function isn't deployed and the webhook and secrets
-  aren't set (user steps in SETUP-TODO). Remaining order: 3.2, 3.3, 4.4, 4.2, 3.4 (sample wording), 4.3,
-  then Phase 5. 3.5 needs Resend. **`docs/OVERNIGHT.md` has the instructions for an unattended run.**
-- Checks: typecheck, lint, 136 Vitest tests, 75 pgTAP tests, the Playwright smoke test and `pnpm size` pass.
-  The landing page is **91.8 kB as served** (budget 100); the signed-in app's JS is **184.9 kB gzipped**
-  (budget 200). `/pod` is a lazy 21 kB chunk, like the other screens.
+  aren't set (user steps in SETUP-TODO). The rest of Phases 3 and 4 was built overnight (next bullet).
+- **Overnight Oct 30 to 31** (section above): 3.2, 3.3, 3.4 (sample wording), 4.2, 4.3, 4.4 and the Phase 5
+  items that need no staging or phones. Left: 3.5 (needs Resend and staging), the NDPA review, low-end phone QA,
+  the keyboard and screen-reader pass, prod rate limits, and the Nov 12 final check.
+- Checks: typecheck, lint, format, 189 Vitest, 171 pgTAP, 13 Playwright tests, `pnpm size` and
+  `pnpm check:bundle` pass. The landing page is **91.4 kB as served** (budget 100); the signed-in app's JS is
+  **186.1 kB gzipped** (budget 200). DiceBear is a 23 kB lazy chunk shared by `/pod` and `/avatar`.
 - **Staging** is linked and has all seven migrations and the 40 sample days (loaded with `--publish-now`, so
   testers can open any day with `?asOf`), but **no pods**: the seed is local only. `pnpm pods:test --target
   staging --name "…" email…` puts testers in a pod.
@@ -47,13 +187,13 @@ current state and what to do next. Update it at the end of each session.
    dashboard steps, testers signing up, then test pods (`pnpm pods:test`; the user may send the emails for
    Claude to run it). If either test turns up bugs, fix them before starting Phase 3.
 
-## Next: 3.2 privacy and consent, then the order in docs/OVERNIGHT.md
+## Next
 
-Follow `docs/OVERNIGHT.md` (written for an unattended run, but the order and rules apply to any session).
-In a local session with the user, also deploy `notify-report` to staging when asked
-(`pnpm exec supabase functions deploy notify-report`). Things to know:
-- 3.3 avatars: choosing the DiceBear style (and checking its licence) also decides whether it replaces the
-  initials avatars in the pod header and the drawn pod picture (`src/features/pods/pod-picture.ts`).
+1. Review the overnight branch (`claude/friendly-brown-wshsam`) and merge it.
+2. With the user: push the five new migrations to staging (dry run first), set the Vault secret
+   `project_url`, and deploy `notify-report`, `welcome-email` and `daily-reminder`
+   (`pnpm exec supabase functions deploy <name>`). Then the staging walkthroughs.
+3. 3.5 once Resend works; then the remaining Phase 5 checks with the user (phones, NDPA, rate limits).
 - Production Supabase (a separate Pro org) and Resend Pro are needed before Nov 8.
 
 ## Accounts
@@ -178,6 +318,13 @@ In a local session with the user, also deploy `notify-report` to staging when as
 
 ## Watch out for
 
+- **End-to-end tests need local Supabase** (`supabase start`): the smoke test, the signed-in axe scans and the
+  text-only test sign in with codes from Mailpit and use the local service role (through
+  `scripts/lib/target.ts`) to set up and clean up. With `E2E_BASE_URL` set they skip; the public axe scans
+  still run.
+- **The avatar step:** home sends anyone whose `profiles.avatar` is null to `/avatar?setup=1`, once per tab
+  session. Test accounts made by hand (Studio, SQL) will hit it; the seed gives everyone but Funmi an avatar.
+
 - **Size budgets.** Run `pnpm build && pnpm size` after every feature. The signed-in app's JS is 184.9 kB
   gzipped of 200 (React DOM and the Supabase client are most of it). The landing page is 91.8 kB as served of
   100, with little room: anything `main.tsx`, `landing.tsx`, `error-boundary.tsx`, `load-failed.tsx` or
@@ -212,3 +359,4 @@ In a local session with the user, also deploy `notify-report` to staging when as
 - From the plan: moderator names (by Nov 7), whether reports also go to moderators, baseline question
   wording (by Nov 5), data retention period
 - A contact email for the privacy notice (3.2); it could be the same church inbox as the reply-to
+- The overnight decisions listed at the top of this file

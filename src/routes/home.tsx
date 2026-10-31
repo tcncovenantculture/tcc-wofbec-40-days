@@ -1,9 +1,10 @@
 import { CheckCircle2, ChevronRight, Clock } from 'lucide-react'
-import { Link } from 'react-router'
+import { Link, Navigate } from 'react-router'
 import { Logo } from '@/components/brand/logo'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useProfile } from '@/features/auth/api'
+import { avatarStepOffered } from '@/features/avatar/setup-step'
 import { useDaySummaries, type DaySummary } from '@/features/days/api'
 import { useNow, useProgrammeDay } from '@/features/days/use-programme'
 import { useProgress } from '@/features/progress/api'
@@ -14,6 +15,12 @@ export default function HomeRoute() {
   const today = useProgrammeDay()
   const profile = useProfile()
   const firstName = profile.data?.display_name.split(' ')[0]
+
+  // Straight after someone first signs in, make an avatar (PLAN.md 3.3). Skipping saves one, so this only
+  // happens once; the session flag stops it repeating if that save couldn't reach the server.
+  if (profile.data && profile.data.avatar === null && !avatarStepOffered()) {
+    return <Navigate to="/avatar?setup=1" replace />
+  }
 
   return (
     <main className="flex flex-col gap-6 py-2">

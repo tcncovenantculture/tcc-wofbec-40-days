@@ -39,6 +39,7 @@ function Body({ kind, children }: { kind: MessageKind; children: ReactNode }) {
 export function MessageItem({
   message,
   author,
+  avatar,
   mine,
   now,
   reportedReasons,
@@ -46,6 +47,8 @@ export function MessageItem({
 }: {
   message: Message
   author: string
+  /** Shown beside other people's messages */
+  avatar?: ReactNode
   mine: boolean
   now: Date
   /** Shown to the facilitator when the message has open reports. */
@@ -53,7 +56,8 @@ export function MessageItem({
   onOptions?: () => void
 }) {
   return (
-    <li className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
+    <li className={cn('flex items-end gap-2', mine ? 'justify-end' : 'justify-start')}>
+      {avatar}
       <article
         className={cn(
           'relative w-fit max-w-[85%] min-w-40 space-y-1 rounded-2xl px-4 py-3 shadow-card',

@@ -1,6 +1,10 @@
 // The email every moderator gets when a message is reported. Pure (no Deno or Node APIs), so Vitest can
 // test it: supabase/functions/_shared/report-email.test.ts.
 
+import { escapeHtml } from './html.ts'
+
+export { escapeHtml }
+
 export type ReportReason = 'unkind' | 'unsafe' | 'spam' | 'other'
 
 export type ReportEmailInput = {
@@ -30,16 +34,6 @@ const lagos = new Intl.DateTimeFormat('en-GB', {
   hour: '2-digit',
   minute: '2-digit',
 })
-
-/** Makes text safe to put inside HTML: what people type must never become markup. */
-export function escapeHtml(text: string): string {
-  return text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-}
 
 export function reportEmail(input: ReportEmailInput): { subject: string; text: string; html: string } {
   const where = input.podName

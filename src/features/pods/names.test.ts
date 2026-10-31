@@ -1,25 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { avatarModule, firstName, initials, podNames } from './initials'
-
-describe('initials', () => {
-  it('takes the first and last word', () => {
-    expect(initials('Ada Obi')).toBe('AO')
-    expect(initials('  ada   chioma obi ')).toBe('AO')
-  })
-
-  it('uses one letter for a single name', () => {
-    expect(initials('Funmi')).toBe('F')
-  })
-
-  it('handles letters outside Latin and emoji', () => {
-    expect(initials('ọlá adé')).toBe('ỌA')
-    expect(initials('🙂 Bola')).toBe('🙂B')
-  })
-
-  it('falls back to a question mark', () => {
-    expect(initials('   ')).toBe('?')
-  })
-})
+import { avatarModule, firstName, podNames } from './names'
 
 describe('avatarModule', () => {
   it('is stable and between 1 and 5', () => {

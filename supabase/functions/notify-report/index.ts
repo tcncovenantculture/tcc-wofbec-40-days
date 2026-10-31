@@ -9,6 +9,7 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { reportEmail, type ReportReason } from '../_shared/report-email.ts'
+import { json, sendEmails } from '../_shared/send-email.ts'
 
 type Claimed = {
   id: string
@@ -22,11 +23,6 @@ type Claimed = {
     pod: { name: string } | null
   } | null
 }
-
-type Email = { subject: string; text: string; html: string }
-
-const json = (body: unknown, status: number) =>
-  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 
 Deno.serve(async (request) => {
   if (request.method !== 'POST') return json({ error: 'POST only' }, 405)
@@ -84,7 +80,7 @@ Deno.serve(async (request) => {
   })
 
   try {
-    const sentBy = await send(to, email)
+    const sentBy = await sendEmails(to.map((address) => ({ to: address, ...email })))
     if (!sentBy) {
       await release()
       return json({ skipped: 'No email service configured; logged instead' }, 202)
@@ -96,40 +92,3 @@ Deno.serve(async (request) => {
     return json({ error: String(sendError) }, 502)
   }
 })
-
-/** Sends one email per moderator. Returns which service sent them, or null if none is configured. */
-async function send(to: string[], email: Email): Promise<'resend' | 'mailpit' | null> {
-  const resendKey = Deno.env.get('RESEND_API_KEY')
-  const from = Deno.env.get('NOTIFY_FROM')
-  if (resendKey && from) {
-    const response = await fetch('https://api.resend.com/emails/batch', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(to.map((address) => ({ from, to: [address], ...email }))),
-    })
-    if (!response.ok) throw new Error(`Resend ${response.status}: ${await response.text()}`)
-    return 'resend'
-  }
-
-  const mailpit = Deno.env.get('MAILPIT_URL')
-  if (mailpit) {
-    for (const address of to) {
-      const response = await fetch(`${mailpit}/api/v1/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          From: { Email: 'moderation@localhost', Name: 'Covenant Culture 40 Days' },
-          To: [{ Email: address }],
-          Subject: email.subject,
-          Text: email.text,
-          HTML: email.html,
-        }),
-      })
-      if (!response.ok) throw new Error(`Mailpit ${response.status}: ${await response.text()}`)
-    }
-    return 'mailpit'
-  }
-
-  console.log(`No email service configured. Would have sent "${email.subject}" to ${to.length} moderator(s).`)
-  return null
-}

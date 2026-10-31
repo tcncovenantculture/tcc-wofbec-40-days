@@ -401,9 +401,19 @@ deno_version = 2
 [edge_runtime.secrets]
 MAILPIT_URL = "http://host.docker.internal:54324"
 SITE_URL = "http://localhost:5271"
+# Local only: lets daily-reminder take {"asOf": "..."} to test a programme day. Never set on staging or prod.
+ALLOW_AS_OF = "true"
 
 # Called by a Database Webhook, not by the app. It needs no key: each report is emailed about once.
 [functions.notify-report]
+verify_jwt = false
+
+# Both claim each person in the database before sending, so a call from anyone can't send twice (see the
+# emails migration). The cron job calls daily-reminder without a key.
+[functions.welcome-email]
+verify_jwt = false
+
+[functions.daily-reminder]
 verify_jwt = false
 
 [analytics]

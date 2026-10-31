@@ -3,7 +3,7 @@
 Accounts, dashboards and DNS: the parts of the build only you can do. Tick items as you go. API keys and
 passwords go straight into the dashboard or your `.env.*` files, never into chat or this file.
 
-Last updated Oct 30.
+Last updated Oct 31.
 
 ## Now: for the Nov 1 working version
 
@@ -152,16 +152,59 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
 - [ ] Paste the site's link into a WhatsApp chat (to yourself) and check the preview shows the "40 Days"
       picture. Once `40days.tcnikeja.org` is added in Vercel, redeploy so the preview uses that address.
 
+## Privacy notice (built Oct 31, overnight)
+
+- [ ] Choose the contact email for privacy questions and account requests (it could be the same church
+      inbox as the email reply-to). Tell Claude, or replace `[contact email to come]` in
+      `src/routes/privacy.tsx`.
+- [ ] Have someone check `/privacy` against Nigeria's NDPA before Nov 8, especially the cross-border
+      transfer (data in London), the lawful basis (consent), and whether it should name the church as the
+      organisation responsible for the data. The words are a first draft.
+- [ ] Confirm the retention period with the project lead. The notice says everything is deleted 90 days after
+      Jan 2, by 2 April 2027.
+- [ ] Once production Supabase exists, check it's in London too, or tell Claude to change "Where it's kept".
+
+## Baseline questions (built Oct 31 with sample wording)
+
+- [ ] Get the three questions' wording from the project lead (career, character, community; by Nov 5), and
+      what 1 and 5 should mean. Send it to Claude, or put it in `src/features/baseline/questions.ts` in place
+      of the "Sample:" questions.
+
+## Emails: welcome and morning reminders (built Oct 31, overnight)
+
+- [ ] Read the wording: `supabase/functions/_shared/welcome-email.ts` and `reminder-email.ts` (or run them
+      locally and look in Mailpit). Pastor Yemi or the project lead may want to change it.
+- [ ] Ask the project lead: should waiting days (Dec 24 to Jan 1) get a gentle "your pod is still open"
+      email? Built without one, as the plan says.
+- [ ] Pick the church inbox for replies, then add the secret `REPLY_TO` = that address (Edge Functions →
+      Secrets) on staging and prod.
+- [ ] After the next `supabase db push` to staging (the emails migration turns on pg_cron and pg_net), in the
+      SQL editor run, with your project's URL:
+      `select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');`
+      Without it the 06:30 job does nothing. Do the same on prod.
+- [ ] Ask Claude (in a local session) to deploy `welcome-email` and `daily-reminder` along with
+      `notify-report`. They need the same secrets (`RESEND_API_KEY`, `NOTIFY_FROM`, `SITE_URL`).
+
+## Accessibility check (by a person, before Nov 13)
+
+- [ ] On a phone with TalkBack (Android) or VoiceOver (iPhone), go through one day: the five steps, typing an
+      answer, completing it. Then the same with only a keyboard on a laptop (Tab, Enter, Space). Note anything
+      that's hard to reach or doesn't make sense read aloud. Automated checks (axe) pass on every screen, but
+      they can't judge this.
+
 ## Before Nov 8 (public sign-up)
 
 - [ ] Upgrade Resend to **Pro** ($20 a month). The free plan stops at 100 emails a day, and Youth Sunday
       sign-ups could pass that within an hour.
 - [ ] Remove `VITE_ENABLE_AS_OF` from Vercel **Production** (keep it on Preview)
+- [ ] Prod Supabase → Authentication → Rate Limits: check the limits for sign-ups, code verifications and
+      emails per hour suit a Youth Sunday rush (the security pass in the plan lists this)
 - [ ] Production Supabase (Phase 3, with Claude): a separate org on the Pro plan, its own Resend API key and
       SMTP settings, a higher email rate limit, and Vercel Production pointed at it
 
 ## Things to get from the church
 
+- [ ] Who's on call on Nov 13 and Nov 14, and a backup for each (for `docs/RUNBOOK.md`)
 - [ ] Real Module 1 content (it replaces the samples; Claude loads it)
 - [ ] Original logo file (SVG, or a PNG at least 1024px wide)
 - [ ] Baseline question wording (by Nov 5)

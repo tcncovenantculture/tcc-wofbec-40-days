@@ -23,6 +23,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      baseline_responses: {
+        Row: {
+          career: number | null
+          character: number | null
+          community: number | null
+          created_at: string
+          note: string | null
+          phase: Database['public']['Enums']['baseline_phase']
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          career?: number | null
+          character?: number | null
+          community?: number | null
+          created_at?: string
+          note?: string | null
+          phase: Database['public']['Enums']['baseline_phase']
+          user_id?: string
+        }
+        Update: {
+          career?: number | null
+          character?: number | null
+          community?: number | null
+          created_at?: string
+          note?: string | null
+          phase?: Database['public']['Enums']['baseline_phase']
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'baseline_responses_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       days: {
         Row: {
           action_dimension: Database['public']['Enums']['dimension']
@@ -86,6 +125,39 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database['public']['Enums']['event_name']
+          props: NonNullable<Json>
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: never
+          name: Database['public']['Enums']['event_name']
+          props?: NonNullable<Json>
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          name?: Database['public']['Enums']['event_name']
+          props?: NonNullable<Json>
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'events_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
       }
       messages: {
         Row: {
@@ -225,10 +297,13 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          last_reminded_on: string | null
+          privacy_accepted_at: string | null
           reminder_email: boolean
           role: Database['public']['Enums']['user_role']
           segment: Database['public']['Enums']['segment']
           unsubscribe_token: string
+          welcome_sent_at: string | null
           whatsapp_number: string | null
         }
         ComputedFields: never
@@ -238,10 +313,13 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          last_reminded_on?: string | null
+          privacy_accepted_at?: string | null
           reminder_email?: boolean
           role?: Database['public']['Enums']['user_role']
           segment: Database['public']['Enums']['segment']
           unsubscribe_token?: string
+          welcome_sent_at?: string | null
           whatsapp_number?: string | null
         }
         Update: {
@@ -250,10 +328,13 @@ export type Database = {
           display_name?: string
           email?: string
           id?: string
+          last_reminded_on?: string | null
+          privacy_accepted_at?: string | null
           reminder_email?: boolean
           role?: Database['public']['Enums']['user_role']
           segment?: Database['public']['Enums']['segment']
           unsubscribe_token?: string
+          welcome_sent_at?: string | null
           whatsapp_number?: string | null
         }
         Relationships: []
@@ -464,6 +545,31 @@ export type Database = {
       }
     }
     Functions: {
+      claim_daily_reminders: {
+        Args: { at?: string }
+        Returns: {
+          day_number: number
+          display_name: string
+          email: string
+          est_minutes: number
+          title: string
+          unsubscribe_token: string
+          user_id: string
+        }[]
+      }
+      claim_welcome_emails: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          display_name: string
+          email: string
+          is_facilitator: boolean
+          pod_mates: string[]
+          pod_name: string
+          user_id: string
+        }[]
+      }
+      delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined }
+      form_pods: { Args: { joiners?: Json; new_pods?: Json }; Returns: undefined }
       hide_message: { Args: { message_id: string }; Returns: undefined }
       is_facilitator_of: { Args: { pod: string }; Returns: boolean }
       is_pod_member: { Args: { pod: string }; Returns: boolean }
@@ -536,10 +642,14 @@ export type Database = {
       }
       resolve_reports: { Args: { message_id: string; outcome: string }; Returns: undefined }
       set_whatsapp_link: { Args: { link: string }; Returns: undefined }
+      unsubscribe_reminders: { Args: { token: string }; Returns: boolean }
     }
     Enums: {
+      baseline_phase: 'start' | 'end'
       day_kind: 'intro' | 'developmental' | 'synthesis'
       dimension: 'career' | 'character' | 'community'
+      event_name:
+        'day_opened' | 'day_completed' | 'pod_message_posted' | 'reflection_shared' | 'whatsapp_joined'
       message_kind: 'message' | 'shared_reflection' | 'pinned' | 'announcement'
       report_reason: 'unkind' | 'unsafe' | 'spam' | 'other'
       report_status: 'open' | 'actioned' | 'dismissed'
@@ -658,8 +768,16 @@ export const Constants = {
   },
   public: {
     Enums: {
+      baseline_phase: ['start', 'end'],
       day_kind: ['intro', 'developmental', 'synthesis'],
       dimension: ['career', 'character', 'community'],
+      event_name: [
+        'day_opened',
+        'day_completed',
+        'pod_message_posted',
+        'reflection_shared',
+        'whatsapp_joined',
+      ],
       message_kind: ['message', 'shared_reflection', 'pinned', 'announcement'],
       report_reason: ['unkind', 'unsafe', 'spam', 'other'],
       report_status: ['open', 'actioned', 'dismissed'],

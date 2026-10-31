@@ -23,3 +23,12 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      - run: pnpm format:check
+      # Placeholder values, not secrets: without them the build leaves the Supabase client out entirely and
+      # the size check would measure a smaller app than people get.
+      - run: pnpm build
+        env:
+          VITE_SUPABASE_URL: https://ci-placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_ci_placeholder
+      - run: pnpm size
+      - run: pnpm check:bundle

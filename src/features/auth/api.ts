@@ -50,6 +50,8 @@ export function useSendCode() {
               segment: values.segment,
               whatsapp_number: values.whatsapp_number,
               reminder_email: values.reminder_email,
+              // Stored as privacy_accepted_at, with the server's time. The form requires the tick.
+              privacy_accepted: values.privacy,
             },
           },
         })
@@ -80,6 +82,21 @@ export function useSignOut() {
     mutationFn: async () => {
       const { error } = await supabase.auth.signOut()
       if (error) throw error
+    },
+  })
+}
+
+/**
+ * Deletes the signed-in person's account for good (the delete_my_account RPC), then signs out on this phone,
+ * which clears the cache. The account is already gone, so the server answers the sign-out with a 403;
+ * supabase-js expects that and removes the session anyway.
+ */
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc('delete_my_account')
+      if (error) throw error
+      await supabase.auth.signOut({ scope: 'local' })
     },
   })
 }

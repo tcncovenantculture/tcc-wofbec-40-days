@@ -5,6 +5,7 @@ import { useState, type ReactNode } from 'react'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/features/auth/session'
 import { LocalSettingsProvider } from '@/features/settings/local-settings'
+import { QUERY_CACHE_KEY } from '@/lib/auth-storage'
 
 const WEEK = 7 * 24 * 60 * 60 * 1000
 
@@ -37,7 +38,7 @@ function phoneStorage(): Storage | undefined {
   }
 }
 
-const persister = createSyncStoragePersister({ storage: phoneStorage(), key: 'c40.cache' })
+const persister = createSyncStoragePersister({ storage: phoneStorage(), key: QUERY_CACHE_KEY })
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(createQueryClient)

@@ -9,6 +9,9 @@
 -- Rooftop also has dayo, efe and funmi; Lantern has gbenga (its facilitator), halima, ife and jide, all
 -- @example.com. Ada and Bola can chat on two phones while Chidi, in the other pod, sees none of it.
 --
+-- Everyone but Funmi has an avatar, so seeded sign-ins skip the avatar builder; sign up with a new email
+-- to see it.
+--
 -- Module 1 sample days are loaded with publish_at in the past, so they are open now. For the other 32
 -- sample days: pnpm content:load content/samples/module-N.json --publish-now
 
@@ -38,6 +41,22 @@ insert into auth.identities (provider_id, user_id, identity_data, provider, crea
 select id::text, id, jsonb_build_object('sub', id::text, 'email', email, 'email_verified', true), 'email', now(), now()
 from auth.users
 where email like '%@example.com';
+
+-- Avatars, so local sign-ins go straight to home. Funmi has none, to show the seeded fallback in the pod;
+-- sign up with a new email to try the builder.
+update public.profiles p
+set avatar = jsonb_build_object(
+  'v', 1,
+  'skin', (array['8c5a2b', '643d19', 'a47539', 'c99c62', 'e2ba87', 'f5d7b1'])[1 + s.n % 6],
+  'hair', (array['froBun', 'braids', 'shortHair', 'curlyBob', 'shavedHead', 'curlyShortHair', 'bunHair'])[1 + s.n % 7],
+  'hairColour', (array['220f00', '3a1a00', '71472d'])[1 + s.n % 3],
+  'accessory', (array['none', 'none', 'glasses', 'none', 'sunglasses'])[1 + s.n % 5],
+  'eyes', (array['cheery', 'normal', 'winking'])[1 + s.n % 3],
+  'mouth', (array['openedSmile', 'teethSmile', 'gapSmile', 'kawaii'])[1 + s.n % 4],
+  'background', 1 + s.n % 5
+)
+from (select id, row_number() over (order by email)::int as n from public.profiles where email like '%@example.com') s
+where p.id = s.id and p.email <> 'funmi@example.com';
 
 update public.profiles set role = 'reviewer' where id = 'a1000000-0000-4000-8000-000000000004';
 update public.profiles set role = 'moderator' where id = 'a1000000-0000-4000-8000-000000000005';
@@ -265,6 +284,10 @@ insert into public.messages (pod_id, day_number, author_id, kind, body, created_
 -- calls the notify-report edge function, which sends to Mailpit locally (http://127.0.0.1:54324).
 
 create extension if not exists pg_net;
+
+-- Local only: where the daily-reminder cron job (see the emails migration) finds the edge functions. On
+-- staging and prod this Vault secret is the project's URL, set by hand (docs/SETUP-TODO.md).
+select vault.create_secret('http://kong:8000', 'project_url');
 
 create trigger notify_report
 after insert on public.reports

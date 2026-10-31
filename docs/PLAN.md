@@ -553,33 +553,102 @@ Build notes (Oct 30):
 
 ### 3.2 Privacy and consent
 
-- [ ] `/privacy`: what's collected (name, segment, email, optional WhatsApp number, reflections, progress,
+- [x] `/privacy`: what's collected (name, segment, email, optional WhatsApp number, reflections, progress,
       pod messages), why, who can see what (reflections: only you; pod messages: your pod and moderators),
       where it's stored (hosting outside Nigeria), how long (delete 90 days after Jan 2 unless the project
       lead decides otherwise), how to delete your account, contact email
 - [ ] Have the privacy notice checked against Nigeria's NDPA requirements, including cross-border transfer,
       before Nov 8. That's a human review, not code.
-- [ ] Settings: change reminder consent; delete account (RPC removes profile, reflections, progress and
+- [x] Settings: change reminder consent; delete account (RPC removes profile, reflections, progress and
       memberships; messages become "Former member")
+
+Build notes (Oct 31, overnight run):
+
+- **Consent record:** `profiles.privacy_accepted_at`, set by the sign-up trigger from `privacy_accepted: true`
+  in the form's metadata, with the server's time. Nullable: accounts made before it existed have none, and the
+  trigger doesn't refuse a sign-up without it (the form already requires the tick). Nobody can edit it.
+- **The contact email isn't decided:** the notice says "[contact email to come]" (`CONTACT` at the top of
+  `src/routes/privacy.tsx`). It names Supabase in London, Vercel and Resend, and says there's no age question
+  and no trackers. "Last updated" is a fixed date in the page; change it with the words.
+- **Delete account** is `delete_my_account()`: it deletes the `auth.users` row, which cascades to the profile,
+  progress, reflections and pod membership; messages keep their text with no author ("Former member") and
+  reports stay open with no reporter. The app then signs out on the phone (the server's 403 for the missing
+  user is expected). A two-step sheet explains what goes and what stays. If the facilitator leaves, the pod
+  has no facilitator until someone sets one in Studio.
+- **Sign-out now removes the saved query cache at once.** It used to be rewritten up to a second later, so a
+  phone closed in that second kept the previous person's cached profile (`forgetCachedData` in
+  `features/auth/session.tsx`).
+- Settings is now a real screen: reminder consent (saves straight away, with a toast), text only, Moderation
+  (moderators), the privacy notice, sign out, and delete account at the bottom.
 
 ### 3.3 Avatars
 
-- [ ] Choose one DiceBear style (try `adventurer`, `big-smile`, `fun-emoji`, `notionists`), check its licence
+- [x] Choose one DiceBear style (try `adventurer`, `big-smile`, `fun-emoji`, `notionists`), check its licence
       and add the attribution to `/privacy` or a credits line if it's CC BY, and check its skin-tone and hair
       range before committing
-- [ ] Background colours restricted to the five accent bases
-- [ ] Builder after verify: skin, hair, outfit or accessory, background, each a row of tappable options with
+- [x] Background colours restricted to the five accent bases
+- [x] Builder after verify: skin, hair, outfit or accessory, background, each a row of tappable options with
       a live preview. "Surprise me" and "Skip" both work; a skipped profile gets a seeded random avatar.
       Lazy-loaded route.
-- [ ] `<UserAvatar>` used in the pod header, roster and chat (small, memoised SVG data URI)
+- [x] `<UserAvatar>` used in the pod header, roster and chat (small, memoised SVG data URI)
 - [ ] Pod scene (stretch): the pod's avatars together on a simple themed scene beside the totals
+
+Build notes (Oct 31, overnight run):
+
+- **Style: Big Smile** (`@dicebear/big-smile`), design "Custom Avatar" by Ashley Seo, **CC BY 4.0**: credited
+  on `/privacy` (Credits) and under the builder. Compared from the packages themselves: Big Smile has eight
+  skin tones from very light to deep brown and 13 hairstyles including braids, a fro bun, curly bob and short
+  curls. Adventurer (CC BY) has only four skin tones; Notionists (CC0) is uncoloured line art, so no skin
+  tones at all; Fun Emoji (CC BY) is emoji faces with no skin or hair.
+- **Versions:** `@dicebear/core` and `@dicebear/big-smile` are both pinned at 9.4.2. Core 10 is out, but the
+  style packages are still 9.x and need core 9.
+- **Stored shape** (`profiles.avatar`): `{ v: 1, skin, hair, hairColour, accessory, eyes, mouth, background }`,
+  checked by a small hand-written parser in `features/avatar/options.ts` (zod stays out of the pod chunk).
+  `background` is a module number (1 to 5), so its colour always comes from `theme/tokens.ts`. Anything
+  missing or invalid draws the seeded avatar from the user id.
+- **A friendly subset only:** three cheerful eye styles and four smiles (no sad, angry or "starstruck" faces);
+  extras are none, glasses, sunglasses or a moustache (no clown nose, sleep mask, cat ears or the cartoon
+  crown); hair colours are the style's four natural ones. "Surprise me" picks from the same subset, with no
+  extras half the time.
+- **Builder** (`/avatar`, lazy, no bottom nav): a big preview with the person's name, then rows for skin,
+  hair, hair colour, extras and background, each option drawn as the avatar would look with it. Each row
+  scrolls sideways and opens centred on the current choice. Nothing saves until "Save my avatar".
+- **"After verify"** is done from home: someone whose `avatar` is null is sent to `/avatar?setup=1` once per tab
+  session. "Skip for now" saves their seeded avatar (so they're never asked again) and moves on even if
+  offline. From Settings ("Change your avatar", a row the plan didn't list but the builder needs a way back
+  in) it saves and returns to Settings, with Cancel instead of Skip.
+- **`<UserAvatar>`** draws an SVG data URI on the phone, memoised per avatar (nothing to download, so it works
+  offline and in text-only mode). It's in the pod header and beside other people's messages (not your own,
+  like most chat apps); a "Former member" gets a plain placeholder circle. The initials avatar is gone.
+- **Size:** DiceBear and Big Smile are a 23 kB gzipped lazy chunk shared by `/pod` and `/avatar`. First load is
+  unchanged (184 kB).
+- The WhatsApp pod picture stays the drawn letter: it's the group's icon, not one person's face.
+- Seed: every seeded user has an avatar except Funmi (shows the seeded fallback). Sign up with a new email to
+  see the builder.
 
 ### 3.4 Baseline questions (optional)
 
-- [ ] After the avatar step: three optional questions (career, character, community), with wording from
-      the project lead; 1 to 5 scale plus optional text; "Skip" is prominent
-- [ ] Table `baseline_responses (user_id, phase 'start'|'end', career int, character int, community int,
+- [x] After the avatar step: three optional questions (career, character, community), with wording from
+      the project lead; 1 to 5 scale plus optional text; "Skip" is prominent. **Built with sample wording**
+      (each question starts "Sample:"); the real wording goes in `src/features/baseline/questions.ts`.
+- [x] Table `baseline_responses (user_id, phase 'start'|'end', career int, character int, community int,
       note text, created_at)`, own rows only
+
+Build notes (Oct 31, overnight run):
+
+- `/questions` (lazy) comes straight after the avatar step on first sign-in, then home. It isn't offered again
+  if someone closes the app before it (it's optional), and opening it after answering says thanks.
+- Each question is a row of five large buttons (1 to 5) with the end labels under it ("Not at all", "A great
+  deal": sample labels too); tapping the chosen number again clears it, so any question can be left out.
+  "Save my answers" needs at least one answer or a note. "Skip" is at the top and as a full-size button
+  under Save, and skipping stores nothing.
+- The intro says only the project team sees the answers, as totals. `/privacy` lists them under what's
+  collected and who sees what.
+- Table: primary key `(user_id, phase)`, every answer nullable, note up to 1,000 characters, deleted with the
+  account. Insert and read your own only; no updates (answered once per phase); moderators can't read them.
+  10 pgTAP tests. The `end` phase is ready for Phase 6's Day 40 offer (`useSaveBaseline('end')`).
+- The form uses plain React state rather than react-hook-form, like the report sheet: four optional fields
+  with nothing to validate beyond the database checks.
 
 ### 3.5 Load and email check
 
@@ -638,31 +707,109 @@ Build notes (Oct 30, built ahead of Phase 3's remaining tasks so it exists befor
 
 ### 4.2 Pod formation (`scripts/form-pods.ts`)
 
-- [ ] Reads participants without a pod, grouped by segment, shuffled with a seed printed in the output
-- [ ] Packs into pods of 5. The remainder `r` is handled as: r = 1 → one pod of 6; r = 2 → two pods of 6;
+- [x] Reads participants without a pod, grouped by segment, shuffled with a seed printed in the output
+- [x] Packs into pods of 5. The remainder `r` is handled as: r = 1 → one pod of 6; r = 2 → two pods of 6;
       r = 3 or 4 → one pod of that size; segments with fewer than 4 people → flagged for manual placement
-- [ ] Picks one facilitator per pod at random; generates a friendly pod name from a fixed word list (for
+- [x] Picks one facilitator per pod at random; generates a friendly pod name from a fixed word list (for
       example "Rooftop", "Lantern", "Cedar") plus segment, unique
-- [ ] Dry run prints a CSV (pod, segment, name, facilitator) to review in a spreadsheet; `--commit` writes
+- [x] Dry run prints a CSV (pod, segment, name, facilitator) to review in a spreadsheet; `--commit` writes
       pods and members in one transaction; `--late` adds new sign-ups after Nov 13 to the smallest pod in
       their segment, up to 6
-- [ ] Vitest on the packing function for sizes 1 to 23
-- [ ] Planning numbers: 300 to 500 sign-ups means 60 to 100 pods
+- [x] Vitest on the packing function for sizes 1 to 23
+- [x] Planning numbers: 300 to 500 sign-ups means 60 to 100 pods
+
+Build notes (Oct 31, overnight run):
+
+- **Two cases the rule above doesn't cover cleanly, decided so every pod stays at 4 to 6 (confirm with the
+  project lead):** r = 3 makes **two pods of 4** (one pod of 5 gives a person to the 3), because a pod of 3 is
+  below the minimum. **Seven people** in a segment (one pod of 5 plus r = 2, with no second pod to make a 6)
+  make one pod of 6 and leave **one person to place by hand**. Fewer than 4 are all placed by hand. All in
+  `podSizes` (`scripts/lib/pods.ts`), with the expected pods for every size from 1 to 23 in the tests and
+  the 4-to-6 rule checked up to 600.
+- **Who's placed:** participants only (moderators and reviewers are left out), and only once they've
+  confirmed their email with a code (read through the Auth admin API), and not already in a pod.
+- **Repeatable:** people are sorted by id, then each segment is shuffled with the seed (mulberry32), so the
+  same seed and the same people always give the same pods. The dry run prints the seed; `--commit --seed …`
+  writes exactly what was reviewed, as long as sign-ups are frozen in between.
+- **Names:** one word from a list of 110 (land, house and gospel words, including Iroko, Baobab and Rooftop),
+  unique across all pods, ignoring case and skipping names already used. If they ever run out, names get a
+  number ("Cedar 2"). The segment isn't in the name: it's stored on the pod and shown in the CSV, and members
+  already know their stage.
+- **CSV:** `pod,segment,name,email,facilitator` on standard output (email added so people with the same name
+  can be told apart); the summary goes to standard error, so `pnpm -s pods:form > pods.csv` keeps a clean
+  file. People to place by hand appear with the pod `(place by hand)`.
+- **One transaction:** `form_pods(new_pods, joiners)` (service role only) writes every pod and member or
+  nothing, and checks again: 4 to 6 per new pod, the facilitator is a member, everyone matches the pod's
+  segment, nobody is in two pods, and late joiners never take a pod past 6. 13 pgTAP tests.
+- **`--late`:** each new sign-up joins the smallest pod in their segment with room, ties at random; anyone
+  with nowhere to go is listed for placing by hand (`pnpm pods:test` can't be used on prod, so that's done in
+  Studio for now).
+- `--commit` on prod also needs `--yes`. Checked locally: a dry run on 23 confirmed undergraduates gives
+  5, 5, 5, 4, 4; the same seed gives the same CSV; `--commit` writes them; three late sign-ups fill the two
+  pods of 4 first.
 
 ### 4.3 Emails
 
-- [ ] Edge function `welcome-email`, run once on Nov 13 after pods are formed: your pod's name, members'
+- [x] Edge function `welcome-email`, run once on Nov 13 after pods are formed: your pod's name, members'
       first names, Day 1 is tomorrow, link to the app
-- [ ] Edge function `daily-reminder` scheduled by pg_cron at 06:30 WAT: only users with
+- [x] Edge function `daily-reminder` scheduled by pg_cron at 06:30 WAT: only users with
       `reminder_email = true` who haven't completed today's day; encouraging copy, varied across a few
       templates; an unsubscribe link using `unsubscribe_token` that works without signing in. Batched sends;
       skip on waiting days unless the project lead wants a pod nudge.
-- [ ] Copy review: no shame, no counts of missed days
+- [x] Copy review: no shame, no counts of missed days
+
+Build notes (Oct 31, overnight run):
+
+- **Who gets what is decided in SQL, and claimed as it's picked.** `claim_welcome_emails()` and
+  `claim_daily_reminders(at)` (service role only) mark each person (`profiles.welcome_sent_at`,
+  `profiles.last_reminded_on`) in the same statement that selects them. So the functions need no key
+  (`verify_jwt = false`, like `notify-report`): any number of calls, from anyone, sends each person one welcome
+  and at most one reminder a day. If sending fails, whoever wasn't emailed is released for the next call.
+- **Welcome:** everyone in a pod with a confirmed email. Pod name, the others' first names (facilitator first),
+  and a line that fits the day it's sent ("Day 1 opens tomorrow" on Nov 13; for late joiners, "start with
+  Day 1 whenever you're ready"). The facilitator gets one extra paragraph saying what that means and that
+  nothing extra is expected. Run it after `pods:form --commit`, and again after each `--late --commit`: it
+  only emails people not yet welcomed. It goes to everyone in a pod, not only those who chose reminders: it's
+  the one service email the privacy notice mentions.
+- **Reminder:** pg_cron job `daily-reminder` at 05:30 UTC (06:30 in Lagos, which has no daylight saving)
+  calls the function through `pg_net`, reading the project URL from the Vault secret `project_url` (set by hand
+  on staging and prod; the seed sets it locally). It reminds people who asked, confirmed their email and haven't
+  done today's day; nothing before Day 1, on waiting days (41 onwards) or if today's day isn't published. The
+  function refuses outside 06:00 to 12:00 Lagos, so nobody can set reminders off at night; locally
+  `ALLOW_AS_OF` lets the body pick the time.
+- **Copy:** four wordings rotating by day and person (`_shared/reminder-email.ts`): the day's title and
+  minutes, a gentle line, a button to the day. A Vitest test fails if any wording mentions missing, being
+  behind, streaks, catching up or counts of days. The small print says why they're getting it and links to
+  unsubscribe; a `List-Unsubscribe` header lets mail apps show their own link.
+- **Unsubscribe:** `/unsubscribe?token=…` works signed out and turns reminders off only when "Stop reminder
+  emails" is tapped (some email services open every link to scan it). `unsubscribe_reminders(token)` is the
+  only function anon can call.
+- **Sending:** `_shared/send-email.ts` (Resend batches of 100 with a pause between, else Mailpit, else log),
+  now also used by `notify-report`. `REPLY_TO`, if set, is where replies go.
+- 14 pgTAP tests, 14 Vitest tests for the templates. **Checked locally** with Mailpit: 10 welcomes once, a
+  second call sends none; reminders on Day 1 go only to people who chose them and haven't done it, none twice,
+  none on a waiting day or at night; `notify-report` still emails moderators once. In this cloud sandbox the
+  edge-runtime container couldn't download `npm:@supabase/supabase-js` (the sandbox's proxy certificate), so
+  the functions were run with Deno 2.9 on the host against the local database and Mailpit. On a normal machine
+  `supabase start` serves them as before.
 
 ### 4.4 My journey (`/journey`)
 
-- [ ] Completed days grouped by module (module accent), each opening that day's reflections read-only with
+- [x] Completed days grouped by module (module accent), each opening that day's reflections read-only with
       an edit option; share button per reflection; empty state for days not yet done
+
+Build notes (Oct 31, overnight run):
+
+- Each open module is a card with its accent on the left edge. A finished day expands in place to show its
+  questions and your answers ("Only you can see these"); "Edit my answers" swaps in the day screen's own
+  autosaving boxes, and "Open Day N" goes to the full day. Answers load when the day is opened, not with the
+  list, and aren't saved on the phone (same rule as before), so offline they say they'll show when you're back.
+- Open days you haven't done show as "Ready when you are" with a link, the same wording as home's catch-up
+  list. Modules that haven't started show one line each with their opening date. Before Day 1 the screen says
+  when it starts.
+- The share sheet moved out of `ShareReflections` into `ShareSheet` and `ShareButton` (plus
+  `use-share-state.ts`), so the day screen and My journey share it.
+- `RouteStub` is gone: every route has its real screen.
 
 **Acceptance:** a report on staging emails a test moderator within a minute and the moderator can hide the
 message; the formation script dry run on 23 seeded users produces valid pods; a reminder reaches only a
@@ -674,26 +821,72 @@ consented, incomplete test user and the unsubscribe link works.
 
 - [ ] **Low-end QA:** a real low-cost Android phone (2 GB RAM class) on throttled data: sign-up, home, day,
       pod. Fix anything over 3s to interactive on repeat visits.
-- [ ] **Bundle check:** initial JS at most 200 KB gzipped (`rollup-plugin-visualizer`); everything optional
+- [x] **Bundle check:** initial JS at most 200 KB gzipped (`rollup-plugin-visualizer`); everything optional
       is lazy
-- [ ] **Text-only mode:** settings toggle, plus auto-on when `saveData` is set; no image or media requests
+- [x] **Text-only mode:** settings toggle, plus auto-on when `saveData` is set; no image or media requests
       when it's on
 - [ ] **Accessibility:** axe in Playwright on every route; keyboard and screen-reader pass on the daily
-      screen; contrast check on module accents (small text uses ink shades)
-- [ ] **Metrics:** `events (id, user_id, name, props jsonb, created_at)`, insert-only from the client for
+      screen; contrast check on module accents (small text uses ink shades). **Axe and contrast are done;**
+      the keyboard and screen-reader pass needs a person (docs/SETUP-TODO.md).
+- [x] **Metrics:** `events (id, user_id, name, props jsonb, created_at)`, insert-only from the client for
       `day_opened`, `day_completed`, `pod_message_posted`, `reflection_shared`, `whatsapp_joined`. SQL views:
       sign-ups by day and segment, Day 1 and Day 8 completion, return after each module, pod participation
       (pods with at least one message per day), waiting-day pod activity. Read them in Supabase Studio; no
       third-party trackers.
 - [ ] **Security pass:** every table has RLS (query `pg_tables` where `rowsecurity` is false and expect none);
       no service key in the client bundle (grep the build); auth rate limits set; storage bucket allows
-      read-only public access to `media` only
-- [ ] **End-to-end smoke test** (Playwright, staging): sign up → verify (Mailpit locally) → avatar → home →
-      complete day → post in pod → report a message
-- [ ] **Runbook** `docs/RUNBOOK.md`: Nov 13 sequence (freeze sign-ups for 10 minutes, `pods:form` dry run,
+      read-only public access to `media` only. **Done except the rate limits**, which are dashboard settings
+      on staging and prod (docs/SETUP-TODO.md).
+Build notes (Oct 31, overnight run):
+
+- **Bundle:** `pnpm size` already enforces both budgets (signed-in app 185.7 kB of 200, landing 91.4 kB of
+  100), and CI now runs it after a build, so the visualizer wasn't added. Lazy: day, journey, pod, settings,
+  mod, preview, privacy, avatar, questions, unsubscribe, sign-up and verify. CI builds with placeholder
+  Supabase values: without them the build drops the Supabase client and measures about 60 kB too little.
+- **Metrics:** `events` is insert-only (the app can't read any back, even its own), limited to the five names
+  by an enum, with small `props` (`{"day": 3}`; never text) and deleted with the account. `track()` in
+  `src/lib/analytics.ts` is fire-and-forget: offline events are dropped, never retried, never shown. Called
+  when a day loads (`day_opened`), on completing (`day_completed`), on sending (`pod_message_posted` with the
+  kind, or `reflection_shared`) and on "Join on WhatsApp" (`whatsapp_joined`). The views live in an `analytics`
+  schema the API doesn't expose, so only Studio reads them: `signups_by_day`, `day_completion` (every day;
+  Day 1 and 8 included), `module_return` (finished a day in module m, then opened or finished one in m + 1),
+  `pod_participation` (pods with a message, per day), `waiting_day_activity` (Dec 24 to Jan 1) and
+  `events_by_day`. They count confirmed participants only and list no names. `/privacy` mentions the events.
+  10 pgTAP tests.
+- **Accessibility:** `e2e/a11y.spec.ts` runs axe (WCAG 2.1 AA) on the landing page, sign-up, sign-in,
+  privacy, unsubscribe and not-found, and, signed in locally, on home, a lesson day (Encounter and
+  Understand), the Day 8 template, My journey, the pod, settings, the avatar builder, the baseline questions
+  and `/mod`. It found one real problem, now fixed: the four segment choices on sign-up had no accessible
+  name (Radix's radio is a button, which a wrapping label doesn't name), so they now use `aria-labelledby`
+  and `aria-describedby`. `/verify` and `/preview` aren't scanned yet (they need a pending code and a reviewer).
+  Contrast is covered by `src/theme/tokens.test.ts`.
+- **End-to-end:** `e2e/journey.spec.ts` signs up a new person, verifies with the code from Mailpit, makes an
+  avatar, skips the questions, completes Day 1 (`?asOf=2026-11-14`), joins the seed's Rooftop pod (through the
+  local service role, as `pods:form` would), posts, and reports Dayo's message; then deletes everything it
+  made. Local-only helpers are in `e2e/support/local.ts` and reuse `scripts/lib/target.ts` for the key. CI
+  doesn't run Playwright (it would need Supabase); run `pnpm test:e2e` with `supabase start` going.
+- **Text-only mode** (built in Phase 1) is now proven by `e2e/text-only.spec.ts`: Day 1 is given an image, an
+  AI-generated audio clip and a YouTube video for the test. With text-only off the image is requested; with
+  it on there are no Storage, YouTube or image requests at all, and the alt text, transcripts and the
+  "AI-generated" label show instead; with Data Saver on and no choice saved, it's on by itself. Day 1's media
+  is put back afterwards.
+- **Security pass:** `supabase/tests/security.test.sql` checks the whole database, so a future migration that
+  slips fails it: RLS on every public table; no table or view privileges for signed-out visitors; every view
+  is `security_invoker`; the only function signed-out visitors can call is `unsubscribe_reminders`; every
+  security definer function fixes its `search_path`; `media` is the only public bucket (uploads were already
+  refused, `storage.test.sql`). `pnpm check:bundle` scans the build for Supabase secret keys, service role
+  JWTs, Resend keys and the variable names, and CI runs it (checked that it catches a planted key). CI also
+  runs `pnpm format:check` now. Local `config.toml` has Auth rate limits; staging and prod set theirs in the
+  dashboard.
+
+- [x] **End-to-end smoke test** (Playwright, staging): sign up → verify (Mailpit locally) → avatar → home →
+      complete day → post in pod → report a message. **Runs against local Supabase**; on staging the codes go
+      to real inboxes, so with `E2E_BASE_URL` set it skips and only the public-page checks run.
+- [x] **Runbook** `docs/RUNBOOK.md`: Nov 13 sequence (freeze sign-ups for 10 minutes, `pods:form` dry run,
       review CSV, `--commit`, trigger `welcome-email`, reopen); late joiners; how to load a module; how to
       hide content fast; rollback (Vercel instant rollback, migrations forward-only); who's on call Nov 13
-      and 14
+      and 14. **The on-call names are placeholders** until the user sends them. It also covers the morning
+      reminder check and a short "if something's wrong" table.
 - [ ] Nov 12 final check against the brief's "Needed for Nov 13" list
 
 **Launch (Nov 13):** run the runbook.
