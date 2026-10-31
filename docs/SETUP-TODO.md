@@ -190,6 +190,8 @@ account rather than theirs: you control it, and Nov 8 sign-ups won't use up thei
 - [ ] Upgrade Resend to **Pro** ($20 a month). The free plan stops at 100 emails a day, and Youth Sunday
       sign-ups could pass that within an hour.
 - [ ] Remove `VITE_ENABLE_AS_OF` from Vercel **Production** (keep it on Preview)
+- [ ] Prod Supabase → Authentication → Rate Limits: check the limits for sign-ups, code verifications and
+      emails per hour suit a Youth Sunday rush (the security pass in the plan lists this)
 - [ ] Production Supabase (Phase 3, with Claude): a separate org on the Pro plan, its own Resend API key and
       SMTP settings, a higher email rate limit, and Vercel Production pointed at it
 

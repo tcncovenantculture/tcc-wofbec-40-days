@@ -12,6 +12,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "size": "node scripts/check-size.ts",
+    "check:bundle": "node scripts/check-bundle.ts",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "format": "prettier --write .",

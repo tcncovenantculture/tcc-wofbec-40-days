@@ -821,7 +821,7 @@ consented, incomplete test user and the unsubscribe link works.
 
 - [ ] **Low-end QA:** a real low-cost Android phone (2 GB RAM class) on throttled data: sign-up, home, day,
       pod. Fix anything over 3s to interactive on repeat visits.
-- [ ] **Bundle check:** initial JS at most 200 KB gzipped (`rollup-plugin-visualizer`); everything optional
+- [x] **Bundle check:** initial JS at most 200 KB gzipped (`rollup-plugin-visualizer`); everything optional
       is lazy
 - [ ] **Text-only mode:** settings toggle, plus auto-on when `saveData` is set; no image or media requests
       when it's on
@@ -834,7 +834,23 @@ consented, incomplete test user and the unsubscribe link works.
       third-party trackers.
 - [ ] **Security pass:** every table has RLS (query `pg_tables` where `rowsecurity` is false and expect none);
       no service key in the client bundle (grep the build); auth rate limits set; storage bucket allows
-      read-only public access to `media` only
+      read-only public access to `media` only. **Done except the rate limits**, which are dashboard settings
+      on staging and prod (docs/SETUP-TODO.md).
+Build notes (Oct 31, overnight run):
+
+- **Bundle:** `pnpm size` already enforces both budgets (signed-in app 185.7 kB of 200, landing 91.4 kB of
+  100), and CI now runs it after a build, so the visualizer wasn't added. Lazy: day, journey, pod, settings,
+  mod, preview, privacy, avatar, questions, unsubscribe, sign-up and verify. CI builds with placeholder
+  Supabase values: without them the build drops the Supabase client and measures about 60 kB too little.
+- **Security pass:** `supabase/tests/security.test.sql` checks the whole database, so a future migration that
+  slips fails it: RLS on every public table; no table or view privileges for signed-out visitors; every view
+  is `security_invoker`; the only function signed-out visitors can call is `unsubscribe_reminders`; every
+  security definer function fixes its `search_path`; `media` is the only public bucket (uploads were already
+  refused, `storage.test.sql`). `pnpm check:bundle` scans the build for Supabase secret keys, service role
+  JWTs, Resend keys and the variable names, and CI runs it (checked that it catches a planted key). CI also
+  runs `pnpm format:check` now. Local `config.toml` has Auth rate limits; staging and prod set theirs in the
+  dashboard.
+
 - [ ] **End-to-end smoke test** (Playwright, staging): sign up → verify (Mailpit locally) → avatar → home →
       complete day → post in pod → report a message
 - [ ] **Runbook** `docs/RUNBOOK.md`: Nov 13 sequence (freeze sign-ups for 10 minutes, `pods:form` dry run,
