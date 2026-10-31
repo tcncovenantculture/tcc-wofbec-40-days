@@ -2,18 +2,10 @@
 
 ## Overnight run (Oct 30 to 31): read this first
 
-Run unattended in a Claude Code cloud session, following `docs/OVERNIGHT.md`. **GitHub refused every push from
-that session** ("Claude doesn't have GitHub access to tcncovenantculture/tcc-wofbec-40-days for your
-organization"; reading worked, writing didn't, through git and the API alike). So the commits are **not on
-GitHub**: they were sent into the session's chat as `overnight-branch.bundle`. To get them:
-
-```bash
-git fetch ~/Downloads/overnight-branch.bundle claude/friendly-brown-wshsam:overnight/2026-10-31
-git log --oneline main..overnight/2026-10-31
-```
-
-To let future cloud sessions push: install the Claude GitHub App on the organisation (an org owner does it at
-https://github.com/apps/claude/installations/select_target) or reconnect GitHub in claude.ai settings.
+Run unattended in a Claude Code cloud session, following `docs/OVERNIGHT.md`. The work is on the branch
+**`claude/friendly-brown-wshsam`** (12 commits on top of `main`), for review before merging. GitHub refused
+pushes during the run until the Claude GitHub App was installed on the organisation the next morning; it's
+pushed now.
 
 **Done** (one commit each, PLAN.md ticked, build notes under each section):
 
@@ -43,7 +35,7 @@ and browser runs of every new screen. **Not verified:**
 - Playwright ran on the sandbox's older Chromium build, not the one `@playwright/test` 1.64 pins.
 
 **Check first:**
-1. Fetch the bundle (above), then `supabase db reset && supabase test db && pnpm test && pnpm test:e2e`.
+1. Check out `claude/friendly-brown-wshsam`, then `supabase db reset && supabase test db && pnpm test && pnpm test:e2e`.
 2. Sign up locally with a new email: avatar → questions → home. Then Settings → delete the account.
 3. Read `/privacy` and the email wording (`supabase/functions/_shared/welcome-email.ts`, `reminder-email.ts`).
 
@@ -126,7 +118,7 @@ current state and what to do next. Update it at the end of each session.
 
 ## Next
 
-1. Get the overnight commits onto GitHub (bundle above), review, and merge.
+1. Review the overnight branch (`claude/friendly-brown-wshsam`) and merge it.
 2. With the user: push the five new migrations to staging (dry run first), set the Vault secret
    `project_url`, and deploy `notify-report`, `welcome-email` and `daily-reminder`
    (`pnpm exec supabase functions deploy <name>`). Then the staging walkthroughs.
